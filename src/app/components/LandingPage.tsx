@@ -1,557 +1,967 @@
-import { useNavigate } from 'react-router';
-import { motion } from 'motion/react';
+import { useState } from "react";
+import { useNavigate } from "react-router";
+import { motion } from "motion/react";
 
-const logoSrc =
-  'https://raw.githubusercontent.com/JudeGaringalo/Pawnect-assets/main/logo.png';
+const logoSrc = "/images/logo.png";
 
 export default function LandingPage() {
   const navigate = useNavigate();
-
-  const goToLogin = () => navigate('/login');
+  const goToLogin = () => navigate("/login");
+  const [openStep, setOpenStep] = useState(0);
 
   const navItems = [
-    { label: 'Product', href: '#product' },
-    { label: 'How it works', href: '#how-it-works' },
-    { label: 'Community', href: '#community' },
-    { label: 'Developers', href: '#developers' },
+    { label: "Cases", href: "#cases" },
+    { label: "How it works", href: "#how-it-works" },
+    { label: "Product", href: "#product" },
+    { label: "Safety", href: "#safety" },
+    { label: "Team", href: "#team" },
   ];
 
-  const reports = [
+  const caseFeed = [
     {
-      status: 'Lost',
-      statusClass: 'bg-rose-500/10 text-rose-600 border border-rose-500/20',
-      name: 'Luna',
-      meta: 'Golden Retriever · Quezon City',
-      time: '12 min ago',
-      note: 'Last seen near Barangay Hall.',
+      type: "Lost",
+      name: "Luna",
+      detail: "Golden Retriever · Quezon City",
+      note: "Last seen near Barangay Hall. Wearing a red collar.",
+      time: "12 min ago",
+      image:
+        "https://images.unsplash.com/photo-1552053831-71594a27632d?w=900&h=1100&fit=crop",
     },
     {
-      status: 'Found',
-      statusClass: 'bg-sky-500/10 text-sky-600 border border-sky-500/20',
-      name: 'Mochi',
-      meta: 'White Cat · Pasig',
-      time: '28 min ago',
-      note: 'Safe and currently with finder.',
+      type: "Found",
+      name: "Mochi",
+      detail: "White Cat · Pasig",
+      note: "Safe with finder. Owner verification needed.",
+      time: "28 min ago",
+      image:
+        "https://images.unsplash.com/photo-1574144611937-0df059b5ef3e?w=900&h=1100&fit=crop",
     },
     {
-      status: 'Reunited',
-      statusClass: 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20',
-      name: 'Bella',
-      meta: 'Aspin · Makati',
-      time: '2 hrs ago',
-      note: 'Owner confirmed and picked up.',
+      type: "Sighting",
+      name: "Unknown",
+      detail: "Small brown dog · Mandaluyong",
+      note: "Seen near a convenience store, moving toward the main road.",
+      time: "41 min ago",
+      image:
+        "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=900&h=1100&fit=crop",
     },
   ];
 
-  const steps = [
+  const process = [
     {
-      number: '01',
-      title: 'Report a case',
-      copy: 'Share a lost or found pet report with photo, location, and the key details people need to help.',
+      step: "01",
+      title: "Make one clear report",
+      copy: "Photos, location, status, identifying marks, and safe contact details are captured in one structured case.",
     },
     {
-      number: '02',
-      title: 'Search nearby',
-      copy: 'Browse reports through a clean feed and a map-based view to quickly spot likely matches nearby.',
+      step: "02",
+      title: "Let nearby people help",
+      copy: "The report becomes searchable by area, pet details, and case status, so the right people can act quickly.",
     },
     {
-      number: '03',
-      title: 'Reconnect faster',
-      copy: 'Use comments, reactions, and status updates to coordinate sightings and reunite pets with their families.',
+      step: "03",
+      title: "Connect the clues",
+      copy: "Sightings, comments, found posts, and possible matches stay attached to the case instead of getting scattered.",
+    },
+    {
+      step: "04",
+      title: "Close the loop",
+      copy: "Once confirmed, the report can be marked reunited so the community knows the search is complete.",
     },
   ];
 
   const features = [
     {
-      label: 'F.01',
-      title: 'Smart search',
-      copy: 'Search by pet name, breed, color, status, or area.',
+      title: "Case-first reporting",
+      copy: "Every lost or found post follows the same structure, making urgent information easier to scan and compare.",
+      image:
+        "https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=900&h=700&fit=crop",
     },
     {
-      label: 'F.02',
-      title: 'Map-based discovery',
-      copy: 'See reports pinned on a map for faster local matching.',
+      title: "Location-aware search",
+      copy: "Browse by nearby areas, last-seen locations, and active reports instead of relying on chance.",
+      image:
+        "https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?w=900&h=700&fit=crop",
     },
     {
-      label: 'F.03',
-      title: 'Community updates',
-      copy: 'Comment on reports and share helpful sightings.',
+      title: "Possible match signals",
+      copy: "Similar reports, sightings, and comments can point owners and finders toward the same case.",
+      image:
+        "https://images.unsplash.com/photo-1517849845537-4d257902454a?w=900&h=700&fit=crop",
     },
     {
-      label: 'F.04',
-      title: 'Relevant notifications',
-      copy: 'Stay updated when reports change or a match appears nearby.',
+      title: "Status clarity",
+      copy: "Lost, found, sighting, possible match, and reunited states keep the next action clear.",
+      image:
+        "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=900&h=700&fit=crop",
     },
     {
-      label: 'F.05',
-      title: 'Admin moderation',
-      copy: 'Flagged or duplicate reports can be reviewed cleanly.',
+      title: "Community updates",
+      copy: "Helpful comments and sightings stay with the report, giving owners a cleaner timeline of what happened.",
+      image:
+        "https://images.unsplash.com/photo-1601758125946-6ec2ef64daf8?w=900&h=700&fit=crop",
     },
     {
-      label: 'F.06',
-      title: 'Reunited tracking',
-      copy: 'Mark successful reunions and show community impact.',
+      title: "Moderation support",
+      copy: "Flagged, duplicate, suspicious, or incomplete reports can be reviewed before they confuse the search.",
+      image:
+        "https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=900&h=700&fit=crop",
     },
   ];
 
-  const productHighlights = [
-    { label: 'Searchable reports' },
-    { label: 'Location pins' },
-    { label: 'Status tracking' },
-    { label: 'Community alerts' },
-  ];
+  const marqueeFeatures = [...features, ...features];
 
-  const reunitedStories = [
-    {
-      name: 'Luna',
-      location: 'Quezon City',
-      time: 'Reunited in 2 hours',
-      story:
-        'A nearby resident recognized Luna from the report and shared the location immediately.',
-      image:
-        'https://images.unsplash.com/photo-1552053831-71594a27632d?w=900&h=700&fit=crop',
-    },
-    {
-      name: 'Mochi',
-      location: 'Pasig',
-      time: 'Reunited in 5 hours',
-      story:
-        'A found-cat post helped the owner connect with the finder and confirm the match quickly.',
-      image:
-        'https://images.unsplash.com/photo-1574144611937-0df059b5ef3e?w=900&h=700&fit=crop',
-    },
-    {
-      name: 'Bella',
-      location: 'Makati',
-      time: 'Reunited in 1 day',
-      story:
-        'Location updates and community comments helped narrow the search area until Bella was found.',
-      image:
-        'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=900&h=700&fit=crop',
-    },
+  const safety = [
+    "Protect contact details until useful",
+    "Reduce duplicate and misleading posts",
+    "Keep status changes visible",
+    "Make owner verification easier",
   ];
 
   const developers = [
-    { name: 'Maria Santos', role: 'Project Lead' },
-    { name: 'Juan Dela Cruz', role: 'Frontend Developer' },
-    { name: 'Sofia Reyes', role: 'UI/UX Designer' },
-    { name: 'Miguel Torres', role: 'Backend Developer' },
-    { name: 'Ana Castillo', role: 'QA Specialist' },
+    { name: "Maria Santos", role: "Project Lead" },
+    { name: "Juan Dela Cruz", role: "Frontend Developer" },
+    { name: "Sofia Reyes", role: "UI/UX Designer" },
+    { name: "Miguel Torres", role: "Backend Developer" },
+    { name: "Ana Castillo", role: "QA Specialist" },
   ];
 
   const getInitials = (name: string) =>
     name
-      .split(' ')
+      .split(" ")
       .map((part) => part[0])
-      .join('')
+      .join("")
       .slice(0, 2)
       .toUpperCase();
 
-  // Framer Motion Variants
   const fadeUp = {
-    hidden: { opacity: 0, y: 40 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } },
+    hidden: { opacity: 0, y: 24 },
+    show: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.68, ease: [0.16, 1, 0.3, 1] },
+    },
   };
 
-  const staggerContainer = {
-    hidden: { opacity: 0 },
-    show: { opacity: 1, transition: { staggerChildren: 0.1 } },
+  const stagger = {
+    hidden: {},
+    show: { transition: { staggerChildren: 0.07 } },
   };
 
-  const staggerItem = {
-    hidden: { opacity: 0, y: 30 },
-    show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 40, damping: 12 } },
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.58, ease: [0.16, 1, 0.3, 1] },
+    },
   };
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 selection:bg-[#ff6b35] selection:text-white font-sans">
-      
-      {/* NAV */}
-      <nav className="fixed left-0 right-0 top-0 z-50 bg-white/90 backdrop-blur-md">
-        <div className="mx-auto flex max-w-[1400px] items-center justify-between px-6 py-5">
-          <div className="flex items-center gap-3 font-medium text-slate-900">
-            <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-              <img src={logoSrc} alt="Pawnect logo" className="h-8 w-auto object-contain" />
-            </button>
-            <span className="text-slate-300">/</span>
-            <span className="text-sm tracking-wide">Hello@pawnect.ph</span>
-          </div>
+    <div className="min-h-screen overflow-x-hidden bg-[#f4efe5] text-[#15120f] selection:bg-[#ff6b35] selection:text-white">
+      <style>{`
+        @keyframes pawnectMarquee {
+          from { transform: translate3d(0, 0, 0); }
+          to { transform: translate3d(-50%, 0, 0); }
+        }
 
-          <div className="hidden items-center gap-8 md:flex">
-            {navItems.map((item, i) => (
-              <div key={item.label} className="flex items-center gap-8">
-                <a href={item.href} className="text-sm font-medium tracking-wide text-slate-600 transition-colors hover:text-slate-900">
-                  {item.label}
-                </a>
-                {i < navItems.length - 1 && <span className="h-1 w-1 rounded-full bg-slate-300" />}
-              </div>
+        .pawnect-marquee-track {
+          animation: pawnectMarquee 36s linear infinite;
+        }
+
+        .pawnect-marquee:hover .pawnect-marquee-track {
+          animation-play-state: paused;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .pawnect-marquee-track {
+            animation: none;
+            transform: none;
+          }
+        }
+      `}</style>
+
+      <nav className="fixed left-0 right-0 top-0 z-50 px-3 pt-3 sm:px-5">
+        <div className="mx-auto flex h-[66px] max-w-[1500px] items-center justify-between rounded-full border border-black/10 bg-white/45 px-4 shadow-[0_18px_60px_rgba(0,0,0,0.10)] backdrop-blur-2xl sm:px-5 lg:px-6">
+          <button
+            type="button"
+            onClick={() =>
+              window.scrollTo({ top: 0, behavior: "smooth" })
+            }
+            className="flex items-center gap-3"
+          >
+            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/80 shadow-sm">
+              <img
+                src={logoSrc}
+                alt="Pawnect logo"
+                className="h-6 w-auto object-contain"
+              />
+            </span>
+
+            <span className="hidden text-[11px] font-semibold uppercase tracking-[0.18em] text-black/72 md:block">
+              Pet recovery system
+            </span>
+          </button>
+
+          <div className="hidden items-center gap-8 lg:flex">
+            {navItems.map((nav) => (
+              <a
+                key={nav.label}
+                href={nav.href}
+                className="text-[13px] font-semibold text-black/68 transition-colors hover:text-black"
+              >
+                {nav.label}
+              </a>
             ))}
           </div>
 
-          <div className="flex items-center gap-6">
-            <button onClick={goToLogin} className="hidden text-sm font-medium text-slate-600 transition-colors hover:text-slate-900 md:block">
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={goToLogin}
+              className="hidden text-[13px] font-semibold text-black/68 transition-colors hover:text-black sm:block"
+            >
               Log in
             </button>
-            <button onClick={goToLogin} className="rounded-full border border-slate-200 bg-white px-6 py-2.5 text-sm font-medium tracking-wide text-slate-900 shadow-sm transition-all hover:border-slate-900 hover:bg-slate-50 active:scale-95">
-              Get it Now — It's Free
+
+            <button
+              type="button"
+              onClick={goToLogin}
+              className="rounded-full bg-[#15120f] px-5 py-2.5 text-[13px] font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-[#2b251f]"
+            >
+              Start a report
             </button>
           </div>
         </div>
       </nav>
 
-      {/* 1. HERO SECTION */}
-      <section className="pt-28 pb-16">
-        <div className="mx-auto max-w-[1400px] px-4 md:px-6">
-          <div className="relative overflow-hidden rounded-[2.5rem] bg-[#e6e8e9] px-6 py-16 md:px-16 lg:py-20 shadow-sm">
-            
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/40 to-transparent" />
+      <main>
+        {/* HERO */}
+        <section className="px-3 pb-8 pt-[92px] sm:px-4 md:px-6">
+          <div className="mx-auto max-w-[1500px]">
+            <div className="relative min-h-[calc(100svh-112px)] overflow-hidden rounded-[28px] bg-[#181410] sm:rounded-[42px]">
+              <div className="absolute inset-0 bg-[linear-gradient(115deg,rgba(244,239,229,0.12),transparent_38%),radial-gradient(circle_at_78%_18%,rgba(255,107,53,0.30),transparent_30%)]" />
+              <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/45 to-transparent" />
 
-            <div className="relative z-10 grid items-center gap-16 lg:grid-cols-2">
-              
-              {/* LEFT CONTENT */}
-              <div className="flex flex-col items-start lg:pr-8">
-                <motion.div initial="hidden" animate="show" variants={fadeUp} className="mb-8 flex items-center gap-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-black text-white shadow-lg">
-                    <span className="text-xl font-serif leading-none italic">+</span>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-medium leading-tight text-slate-900">12k+ Cases</h3>
-                    <p className="text-sm font-normal text-slate-600 underline decoration-slate-400 underline-offset-4 cursor-pointer hover:text-black">
-                      Read Our <span className="font-medium text-black">Success Stories</span>
+              <div className="relative z-10 grid min-h-[calc(100svh-112px)] lg:grid-cols-[1.02fr_0.98fr]">
+                <div className="flex flex-col justify-between p-6 text-white sm:p-9 lg:p-12 xl:p-16">
+                  <motion.div
+                    initial="hidden"
+                    animate="show"
+                    variants={fadeUp}
+                    className="flex max-w-md items-start gap-4"
+                  >
+                    <span className="mt-1 h-2.5 w-2.5 rounded-full bg-[#ff6b35]" />
+                    <p className="text-sm leading-relaxed text-white/58">
+                      A calmer, more organized way for owners,
+                      finders, and communities to act when a pet
+                      goes missing.
                     </p>
-                  </div>
-                </motion.div>
-
-                <motion.h1 initial="hidden" animate="show" variants={fadeUp} className="relative font-serif text-[6rem] font-medium leading-[0.85] tracking-tight text-slate-900 md:text-[8rem] lg:text-[10rem]">
-                  Paw<span className="absolute -right-10 top-0 font-sans text-[3rem] font-normal md:-right-14 md:text-[4rem] lg:-right-16 lg:text-[5rem]">+</span>
-                </motion.h1>
-
-                <div className="my-8 h-[1px] w-full max-w-md bg-slate-300/80" />
-
-                <motion.p initial="hidden" animate="show" variants={fadeUp} className="max-w-md text-xl font-normal leading-relaxed text-slate-700">
-                  Drive Pet Recovery, And Harness Local Community Networks — Up To 50x Faster.
-                </motion.p>
-
-                <motion.div initial="hidden" animate="show" variants={fadeUp} className="mt-8 flex items-center gap-5">
-                  <div className="relative h-10 w-10 overflow-hidden rounded-full border border-white shadow-sm">
-                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop" alt="User" className="h-full w-full object-cover" />
-                  </div>
-                  <div className="flex items-center gap-5">
-                    <div>
-                      <p className="text-sm font-medium text-slate-900">Loved the performance</p>
-                      <p className="text-sm font-normal text-slate-500">100% Satisfied</p>
-                    </div>
-                    <div className="text-slate-300 font-light text-xl">/</div>
-                    <div className="text-sm font-medium text-slate-900">
-                      ★ 4.9
-                    </div>
-                  </div>
-                </motion.div>
-
-                <div className="my-8 h-[1px] w-full max-w-md bg-slate-300/80" />
-
-                <motion.div initial="hidden" animate="show" variants={fadeUp} className="flex flex-wrap items-center gap-6">
-                  <button onClick={goToLogin} className="flex items-center justify-center rounded-full bg-black px-8 py-3.5 text-sm font-medium text-white shadow-[0_10px_20px_rgba(0,0,0,0.1)] transition-transform hover:scale-105 active:scale-95">
-                    Get Started — It's Free
-                  </button>
-                  <button onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })} className="group flex items-center gap-2 text-sm font-medium text-slate-900 transition-opacity hover:opacity-70">
-                    How it works <span className="transition-transform group-hover:translate-x-1">—</span>
-                  </button>
-                </motion.div>
-              </div>
-
-              {/* RIGHT CONTENT */}
-              <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8 }} className="relative flex h-[550px] w-full items-end justify-center rounded-[2rem] bg-gradient-to-br from-[#ff6b35] to-[#f7c59f] p-4 lg:h-[700px]">
-                <img src="https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=800&q=80" alt="Dog" className="absolute bottom-0 w-[85%] object-contain" style={{ filter: 'drop-shadow(0px 20px 30px rgba(0,0,0,0.3))' }} />
-
-                <motion.button animate={{ scale: [1, 1.05, 1] }} transition={{ duration: 4, repeat: Infinity }} className="absolute left-[-1.5rem] top-1/2 flex h-20 w-20 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-2xl md:left-[-2.5rem]">
-                  <span className="font-serif text-lg italic tracking-widest text-black">Play</span>
-                </motion.button>
-
-                <div className="absolute left-[-2rem] top-[15%] flex flex-col gap-3 md:left-[-4rem]">
-                  <motion.div animate={{ y: [0, -5, 0] }} transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }} className="flex items-center gap-3 rounded-full border border-white/50 bg-white/60 px-5 py-3 shadow-xl backdrop-blur-xl">
-                    <div className="h-2 w-2 rounded-full bg-[#ff6b35]"></div>
-                    <span className="text-sm font-medium text-slate-900">Is this the missing dog?</span>
                   </motion.div>
-                  <motion.div animate={{ y: [0, 5, 0] }} transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }} className="ml-8 flex items-center gap-3 rounded-full border border-white/50 bg-white/60 px-5 py-3 shadow-xl backdrop-blur-xl">
-                    <div className="h-2 w-2 rounded-full bg-[#3b82f6]"></div>
-                    <span className="text-sm font-medium text-slate-900">Yes! That's Luna!</span>
+
+                  <motion.div
+                    initial="hidden"
+                    animate="show"
+                    variants={stagger}
+                    className="mt-20 max-w-[720px] lg:mt-0"
+                  >
+                    <motion.p
+                      variants={item}
+                      className="mb-7 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#ffb39a]"
+                    >
+                      Pawnect
+                    </motion.p>
+
+                    <motion.h1
+                      variants={item}
+                      className="font-serif text-[clamp(2.8rem,6.8vw,6rem)] font-medium leading-[1.1] tracking-[-0.04em]"
+                    >
+                      Bring them back into reach.
+                    </motion.h1>
+
+                    <motion.div
+                      variants={item}
+                      className="mt-9 max-w-2xl border-l border-white/18 pl-5 sm:mt-10 sm:pl-7"
+                    >
+                      <p className="text-base leading-relaxed text-white/66 sm:text-xl">
+                        Pawnect turns lost and found pet posts
+                        into searchable local cases — with
+                        location, status, sightings, and updates
+                        in one place.
+                      </p>
+                    </motion.div>
+
+                    <motion.div
+                      variants={item}
+                      className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center"
+                    >
+                      <button
+                        type="button"
+                        onClick={goToLogin}
+                        className="rounded-full bg-[#ff6b35] px-7 py-4 text-sm font-semibold text-white transition-all hover:-translate-y-1 hover:bg-[#ef5f2b]"
+                      >
+                        Report a pet
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          document
+                            .getElementById("cases")
+                            ?.scrollIntoView({
+                              behavior: "smooth",
+                            })
+                        }
+                        className="rounded-full border border-white/18 px-7 py-4 text-sm font-semibold text-white/78 transition-all hover:-translate-y-1 hover:border-white/34 hover:text-white"
+                      >
+                        View sample cases
+                      </button>
+                    </motion.div>
                   </motion.div>
                 </div>
 
-                <motion.div animate={{ y: [0, 8, 0] }} transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }} className="absolute right-[-1rem] top-[10%] w-[180px] rounded-[1.5rem] border border-white/40 bg-white/40 p-6 shadow-2xl backdrop-blur-2xl md:right-[-2rem]">
-                  <p className="mb-2 text-[10px] font-medium uppercase tracking-widest text-slate-800">— UP TO</p>
-                  <h4 className="text-5xl font-medium tracking-tighter text-slate-900">80%</h4>
-                  <p className="mt-2 text-xs font-normal leading-tight text-slate-800">Faster reunions this week</p>
-                </motion.div>
+                <div className="relative flex min-h-[620px] items-end p-4 sm:p-7 lg:min-h-full lg:p-10">
+                  <motion.div
+                    initial={{
+                      opacity: 0,
+                      y: 34,
+                      rotate: -1.5,
+                    }}
+                    animate={{ opacity: 1, y: 0, rotate: -1.5 }}
+                    transition={{
+                      duration: 0.85,
+                      ease: [0.16, 1, 0.3, 1],
+                    }}
+                    className="relative mx-auto w-full max-w-[620px] rounded-[30px] border border-white/12 bg-[#f4efe5] p-3 shadow-[0_40px_120px_rgba(0,0,0,0.34)] sm:rounded-[38px] sm:p-4"
+                  >
+                    <div className="overflow-hidden rounded-[24px] bg-[#fffaf2] sm:rounded-[30px]">
+                      <div className="flex items-center justify-between border-b border-black/8 px-5 py-4">
+                        <div>
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-black/35">
+                            Active case
+                          </p>
+                          <h2 className="mt-2 text-xl font-semibold leading-snug tracking-[-0.03em] text-black">
+                            Luna · Golden Retriever
+                          </h2>
+                        </div>
 
-                <motion.div animate={{ y: [0, -8, 0] }} transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut', delay: 1 }} className="absolute bottom-[10%] right-[-1.5rem] flex w-[280px] items-center gap-4 rounded-[1.5rem] border border-white/40 bg-white/40 p-4 shadow-2xl backdrop-blur-2xl md:right-[-3rem]">
-                  <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-xl bg-white p-1.5 shadow-inner">
-                     <img src="https://images.unsplash.com/photo-1552053831-71594a27632d?w=200&h=200&fit=crop" alt="Luna" className="h-full w-full rounded-lg object-cover" />
-                  </div>
-                  <div>
-                    <h4 className="text-base font-medium leading-tight text-slate-900">Lost Pet Report<br/>Luna</h4>
-                    <p className="mt-1 text-xl font-medium tracking-tight text-slate-900">Reward</p>
-                    <div className="mt-2 inline-flex items-center gap-1 rounded-full bg-white px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-slate-900 shadow-sm">
-                      <span className="h-1.5 w-1.5 rounded-full bg-slate-900" /> Confirmed
+                        <span className="rounded-full bg-[#ff6b35]/12 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#d94f21]">
+                          Lost
+                        </span>
+                      </div>
+
+                      <div className="grid gap-3 p-3 sm:grid-cols-[0.9fr_1.1fr]">
+                        <div className="relative min-h-[340px] overflow-hidden rounded-[22px] bg-[#e8ded1]">
+                          <img
+                            src="https://images.unsplash.com/photo-1552053831-71594a27632d?w=760&h=980&fit=crop"
+                            alt="Golden Retriever"
+                            className="absolute inset-0 h-full w-full object-cover"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-transparent" />
+                          <div className="absolute bottom-4 left-4 right-4 rounded-2xl bg-white/82 p-4 backdrop-blur-xl">
+                            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-black/40">
+                              Last seen
+                            </p>
+                            <p className="mt-2 text-sm font-semibold leading-snug text-black">
+                              Barangay Hall, Quezon City
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="space-y-3">
+                          <div className="rounded-[22px] bg-[#181410] p-5 text-white">
+                            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/35">
+                              Case timeline
+                            </p>
+
+                            <div className="mt-5 space-y-5">
+                              {[
+                                [
+                                  "12 min",
+                                  "Report created with photo and last-seen area.",
+                                ],
+                                [
+                                  "19 min",
+                                  "Nearby users notified in the same city.",
+                                ],
+                                [
+                                  "31 min",
+                                  "Possible sighting added near a main road.",
+                                ],
+                              ].map(([time, copy]) => (
+                                <div
+                                  key={copy}
+                                  className="grid grid-cols-[54px_1fr] gap-3"
+                                >
+                                  <p className="text-xs font-semibold text-[#ffb39a]">
+                                    {time}
+                                  </p>
+                                  <p className="text-sm leading-relaxed text-white/62">
+                                    {copy}
+                                  </p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          <div className="rounded-[22px] border border-black/8 bg-white p-5">
+                            <div className="mb-4 flex items-center justify-between">
+                              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-black/35">
+                                Possible match
+                              </p>
+                              <span className="h-2 w-2 rounded-full bg-[#ff6b35]" />
+                            </div>
+                            <p className="text-sm leading-relaxed text-black/64">
+                              Similar dog reported near Pasig
+                              yesterday. Photo and collar color
+                              need owner confirmation.
+                            </p>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={goToLogin}
+                            className="w-full rounded-[18px] bg-[#15120f] px-5 py-4 text-sm font-semibold text-white transition-all hover:bg-[#2b251f]"
+                          >
+                            Open case
+                          </button>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </motion.div>
-              </motion.div>
-
+                  </motion.div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
+        </section>
 
-        {/* LOGOS STRIP */}
-        <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp} className="mx-auto mt-12 flex max-w-[1200px] flex-wrap items-center justify-center gap-x-16 gap-y-6 px-6 text-slate-400 md:justify-between">
-          <span className="text-xl font-medium tracking-tighter text-slate-800">Rakuten</span>
-          <span className="flex items-center gap-2 text-xl font-medium tracking-tighter text-slate-800"><div className="h-5 w-5 rotate-45 rounded-full border-2 border-slate-800 border-r-transparent"></div> NCR</span>
-          <span className="text-xl font-medium tracking-tighter text-slate-800">monday.com</span>
-          <span className="font-serif text-2xl font-medium italic tracking-tighter text-slate-800">Disney</span>
-          <span className="flex items-center gap-2 text-xl font-medium tracking-tighter text-slate-800"><div className="h-5 w-5 bg-slate-800"></div> Dropbox</span>
-        </motion.div>
-      </section>
+        {/* EDITORIAL STATEMENT */}
+        <section className="px-4 py-20 sm:px-6 lg:py-24">
+          <div className="mx-auto grid max-w-[1320px] gap-10 lg:grid-cols-[0.7fr_1.3fr] lg:gap-16">
+            <motion.p
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true }}
+              variants={fadeUp}
+              className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#ff6b35]"
+            >
+              Why it exists
+            </motion.p>
 
-      {/* 2. HOW IT WORKS */}
-      <section id="how-it-works" className="py-24">
-        <div className="mx-auto max-w-[1400px] px-4 md:px-6">
-          <div className="rounded-[2.5rem] border border-slate-100 bg-white px-6 py-20 shadow-[0_8px_30px_rgb(0,0,0,0.02)] md:px-16 lg:py-24">
-            
-            <motion.div initial="hidden" whileInView="show" viewport={{ once: true, margin: "-100px" }} variants={fadeUp} className="mb-16">
-              <p className="mb-4 text-xs font-medium uppercase tracking-[0.2em] text-[#ff6b35]">How it works</p>
-              <h2 className="font-serif text-4xl font-medium tracking-tight text-slate-900 md:text-5xl lg:text-6xl">
-                Built around the way<br />communities actually help.
+            <motion.div
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true }}
+              variants={fadeUp}
+            >
+              <h2 className="font-serif text-[clamp(2rem,4vw,4rem)] font-medium leading-[1.16] tracking-[-0.032em]">
+                When a pet is missing, people do not need
+                another feed. They need a clearer way to
+                coordinate.
+              </h2>
+              <p className="mt-9 max-w-3xl text-base leading-relaxed text-black/56 sm:text-lg">
+                Pawnect is designed around the real recovery
+                journey: report what happened, make the case
+                searchable, collect sightings, reduce duplicate
+                noise, and make the next best action obvious.
+              </p>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* CASES */}
+        <section
+          id="cases"
+          className="px-3 py-10 sm:px-4 md:px-6"
+        >
+          <div className="mx-auto max-w-[1500px] rounded-[28px] bg-[#fffaf2] p-4 shadow-[0_24px_90px_rgba(0,0,0,0.05)] sm:rounded-[42px] sm:p-6 lg:p-9">
+            <div className="grid gap-4 lg:grid-cols-[0.85fr_1.15fr]">
+              <motion.div
+                initial="hidden"
+                whileInView="show"
+                viewport={{ once: true, margin: "-100px" }}
+                variants={fadeUp}
+                className="flex min-h-[560px] flex-col justify-between rounded-[26px] bg-[#15120f] p-7 text-white sm:rounded-[34px] sm:p-10"
+              >
+                <div>
+                  <p className="mb-7 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#ffb39a]">
+                    Live case board
+                  </p>
+                  <h2 className="max-w-2xl font-serif text-[clamp(2rem,4.2vw,4.2rem)] font-medium leading-[1.14] tracking-[-0.035em]">
+                    Urgent details, without the noise.
+                  </h2>
+                </div>
+
+                <p className="max-w-lg text-base leading-relaxed text-white/58 sm:text-lg">
+                  Each case is built for scanning: animal photo,
+                  status, location, update time, and the most
+                  useful note stay visible first.
+                </p>
+              </motion.div>
+
+              <motion.div
+                initial="hidden"
+                whileInView="show"
+                viewport={{ once: true, margin: "-100px" }}
+                variants={stagger}
+                className="grid gap-4 md:grid-cols-3 lg:gap-5"
+              >
+                {caseFeed.map((report) => (
+                  <motion.article
+                    key={`${report.name}-${report.type}`}
+                    variants={item}
+                    className="group overflow-hidden rounded-[28px] bg-[#f4efe5] shadow-[0_16px_50px_rgba(0,0,0,0.06)] transition-all hover:-translate-y-1 hover:shadow-[0_26px_80px_rgba(0,0,0,0.10)]"
+                  >
+                    <div className="relative h-[360px] overflow-hidden bg-[#dfd5c8] sm:h-[440px] lg:h-full lg:min-h-[560px]">
+                      <img
+                        src={report.image}
+                        alt={`${report.name} ${report.type} pet`}
+                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/76 via-black/18 to-transparent" />
+
+                      <div className="absolute left-4 right-4 top-4 flex items-center justify-between gap-3">
+                        <p className="rounded-full bg-white/82 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-black backdrop-blur-xl">
+                          {report.detail}
+                        </p>
+                      </div>
+
+                      <div className="absolute bottom-4 left-4 right-4">
+                        <h3 className="mb-4 font-serif text-4xl font-medium leading-none tracking-[-0.055em] text-white">
+                          {report.name}
+                        </h3>
+
+                        <p className="mb-5 text-sm leading-relaxed text-white/72">
+                          {report.note}
+                        </p>
+
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="rounded-full bg-[#ff6b35] px-3.5 py-2 text-[10px] font-semibold uppercase tracking-[0.17em] text-white">
+                            {report.type}
+                          </span>
+                          <span className="rounded-full bg-white/18 px-3.5 py-2 text-[10px] font-semibold uppercase tracking-[0.17em] text-white backdrop-blur-xl">
+                            {report.time}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.article>
+                ))}
+              </motion.div>
+            </div>
+          </div>
+        </section>
+
+        {/* HOW IT WORKS */}
+        <section
+          id="how-it-works"
+          className="px-4 py-20 sm:px-6 lg:py-24"
+        >
+          <div className="mx-auto max-w-[1320px]">
+            <motion.div
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true }}
+              variants={fadeUp}
+              className="mb-16 max-w-4xl"
+            >
+              <p className="mb-7 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#ff6b35]">
+                How it works
+              </p>
+
+              <h2 className="font-serif text-[clamp(2rem,4.2vw,4.2rem)] font-medium leading-[1.16] tracking-[-0.035em]">
+                Designed for the first hour of searching.
               </h2>
             </motion.div>
 
-            <motion.div initial="hidden" whileInView="show" viewport={{ once: true, margin: "-100px" }} variants={staggerContainer} className="grid gap-6 md:grid-cols-3">
-              {steps.map((step) => (
-                <motion.div key={step.title} variants={staggerItem} className="group rounded-[2rem] border border-slate-100 bg-[#fafafa] p-10 transition-all duration-300 hover:-translate-y-2 hover:bg-white hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]">
-                  <div className="mb-6 font-serif text-5xl font-medium text-slate-200 transition-colors group-hover:text-[#ff6b35]">
-                    {step.number}
-                  </div>
-                  <h3 className="mb-4 text-xl font-medium tracking-tight text-slate-900">
-                    {step.title}
-                  </h3>
-                  <div className="mb-4 h-[1px] w-12 bg-slate-200 transition-all group-hover:w-24 group-hover:bg-[#ff6b35]" />
-                  <p className="text-base font-normal leading-relaxed text-slate-500">
-                    {step.copy}
-                  </p>
-                </motion.div>
-              ))}
-            </motion.div>
+            <motion.div
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, margin: "-100px" }}
+              variants={stagger}
+              className="border-y border-black/10"
+            >
+              {process.map((step, index) => {
+                const isOpen = openStep === index;
 
-          </div>
-        </div>
-      </section>
+                return (
+                  <motion.article
+                    key={step.title}
+                    variants={item}
+                    className="border-b border-black/10 last:border-b-0"
+                  >
+                    <div className="grid w-full gap-5 py-8 text-left md:grid-cols-[0.22fr_1fr_56px] md:items-start lg:py-10">
+                      <p className="font-serif text-4xl font-medium tracking-[-0.05em] text-black/18 sm:text-5xl">
+                        {step.step}
+                      </p>
 
-      {/* 3. PRODUCT */}
-      <section id="product" className="py-12">
-        <div className="mx-auto max-w-[1400px] px-4 md:px-6">
-          <div className="relative overflow-hidden rounded-[2.5rem] bg-[#0a0a0a] px-6 py-20 text-white md:px-16 lg:py-24">
-            
-            <div className="pointer-events-none absolute right-0 top-0 h-[600px] w-[600px] rounded-full bg-[#ff6b35]/10 blur-[150px]" />
+                      <div className="max-w-3xl">
+                        <h3 className="text-2xl font-semibold leading-snug tracking-[-0.03em] text-black sm:text-3xl">
+                          {step.title}
+                        </h3>
 
-            <div className="relative z-10 grid items-center gap-20 lg:grid-cols-[1fr_1.2fr]">
-              <motion.div initial="hidden" whileInView="show" viewport={{ once: true, margin: "-100px" }} variants={fadeUp}>
-                <p className="mb-4 text-xs font-medium uppercase tracking-[0.2em] text-[#ff6b35]">Product Features</p>
-                <h2 className="font-serif text-4xl font-medium tracking-tight md:text-5xl lg:text-6xl">
-                  Search, map, comment, & track.
-                </h2>
-                <div className="my-8 h-[1px] w-full max-w-sm bg-white/10" />
-                <p className="text-lg font-normal leading-relaxed text-slate-400">
-                  Pawnect turns scattered posts into structured pet recovery cases with clearer locations, real updates, and practical moderation.
-                </p>
+                        <motion.p
+                          initial={false}
+                          animate={{
+                            height: isOpen ? "auto" : 0,
+                            opacity: isOpen ? 1 : 0,
+                            marginTop: isOpen ? 18 : 0,
+                          }}
+                          transition={{
+                            duration: 0.34,
+                            ease: [0.16, 1, 0.3, 1],
+                          }}
+                          className="overflow-hidden text-base leading-relaxed text-black/56 sm:text-lg"
+                        >
+                          {step.copy}
+                        </motion.p>
+                      </div>
 
-                <div className="mt-12 flex flex-wrap gap-4">
-                  {productHighlights.map(({ label }) => (
-                    <div key={label} className="flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-5 py-3 backdrop-blur-sm">
-                      <span className="h-1.5 w-1.5 rounded-full bg-[#ff6b35]" />
-                      <span className="text-sm font-medium text-slate-200">{label}</span>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setOpenStep(isOpen ? -1 : index)
+                        }
+                        aria-label={`${isOpen ? "Collapse" : "Expand"} ${step.title}`}
+                        className="flex h-12 w-12 items-center justify-center rounded-full border border-black/12 text-2xl font-light text-black transition-all hover:border-[#ff6b35] hover:bg-[#ff6b35] hover:text-white md:justify-self-end"
+                      >
+                        {isOpen ? "−" : "+"}
+                      </button>
                     </div>
+                  </motion.article>
+                );
+              })}
+            </motion.div>
+          </div>
+        </section>
+
+        {/* PRODUCT */}
+        <section
+          id="product"
+          className="px-3 py-10 sm:px-4 md:px-6"
+        >
+          <div className="mx-auto max-w-[1500px] overflow-hidden rounded-[28px] bg-[#15120f] text-white sm:rounded-[42px]">
+            <div className="grid gap-10 p-7 sm:p-10 lg:grid-cols-[0.78fr_1.22fr] lg:p-14">
+              <motion.div
+                initial="hidden"
+                whileInView="show"
+                viewport={{ once: true, margin: "-100px" }}
+                variants={fadeUp}
+                className="flex flex-col justify-between"
+              >
+                <div>
+                  <p className="mb-7 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#ffb39a]">
+                    Product system
+                  </p>
+
+                  <h2 className="font-serif text-[clamp(2rem,4.2vw,4.2rem)] font-medium leading-[1.16] tracking-[-0.035em]">
+                    Not a post. A recovery case.
+                  </h2>
+                </div>
+
+                <p className="mt-9 max-w-xl text-base leading-relaxed text-white/58 sm:text-lg lg:mt-20">
+                  The product is made of connected recovery
+                  tools — reporting, search, map context,
+                  updates, matching, and moderation — moving as
+                  one system.
+                </p>
+              </motion.div>
+
+              <div className="pawnect-marquee relative overflow-hidden rounded-[28px] border border-white/10 bg-[#211b16] py-5">
+                <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-[#211b16] to-transparent" />
+                <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-[#211b16] to-transparent" />
+
+                <div className="pawnect-marquee-track flex w-max gap-4 px-4">
+                  {marqueeFeatures.map((feature, index) => (
+                    <article
+                      key={`${feature.title}-${index}`}
+                      className="group h-[390px] w-[300px] shrink-0 overflow-hidden rounded-[26px] border border-white/10 bg-white/[0.055] transition-colors hover:bg-white/[0.085] sm:w-[360px]"
+                    >
+                      <div className="relative h-[176px] overflow-hidden bg-white/5">
+                        <img
+                          src={feature.image}
+                          alt={feature.title}
+                          className="h-full w-full object-cover opacity-90 transition-transform duration-700 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#15120f]/70 via-transparent to-transparent" />
+                        <p className="absolute left-4 top-4 rounded-full bg-black/35 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#ffb39a] backdrop-blur-xl">
+                          F.0{(index % features.length) + 1}
+                        </p>
+                      </div>
+
+                      <div className="flex h-[214px] flex-col justify-between p-6 sm:p-7">
+                        <h3 className="text-xl font-semibold leading-tight tracking-[-0.03em] text-white sm:text-2xl">
+                          {feature.title}
+                        </h3>
+                        <p className="text-sm leading-relaxed text-white/52">
+                          {feature.copy}
+                        </p>
+                      </div>
+                    </article>
                   ))}
                 </div>
-              </motion.div>
+              </div>
+            </div>
+          </div>
+        </section>
 
-              <motion.div initial="hidden" whileInView="show" viewport={{ once: true, margin: "-100px" }} variants={fadeUp} className="relative">
-                <div className="relative rounded-[2rem] border border-white/20 bg-white/10 p-6 shadow-2xl backdrop-blur-xl">
-                  
-                  <div className="mb-8 flex items-center justify-between">
-                    <div>
-                      <p className="mb-1 text-xs font-medium uppercase tracking-wider text-slate-400">Map intelligence</p>
-                      <h3 className="font-serif text-3xl font-medium tracking-tight">Nearby cases</h3>
-                    </div>
-                    <div className="flex items-center gap-2.5 rounded-full border border-white/20 bg-white/10 px-5 py-2 text-sm font-medium tracking-wide backdrop-blur-sm">
-                      <span className="h-2 w-2 animate-pulse rounded-full bg-[#ff6b35]" />
-                      Live
-                    </div>
+        {/* MAP / UI MOMENT */}
+        <section className="px-4 py-20 sm:px-6 lg:py-24">
+          <div className="mx-auto grid max-w-[1320px] gap-12 lg:grid-cols-[1fr_1fr] lg:items-center">
+            <motion.div
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true }}
+              variants={fadeUp}
+            >
+              <p className="mb-7 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#ff6b35]">
+                Location context
+              </p>
+
+              <h2 className="font-serif text-[clamp(2rem,4vw,4rem)] font-medium leading-[1.16] tracking-[-0.032em]">
+                The map is not decoration. It is the search
+                surface.
+              </h2>
+
+              <p className="mt-9 max-w-xl text-base leading-relaxed text-black/56 sm:text-lg">
+                Lost pet recovery is local. Pawnect makes area,
+                time, and movement visible so users can
+                understand where attention is needed.
+              </p>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 28 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{
+                duration: 0.75,
+                ease: [0.16, 1, 0.3, 1],
+              }}
+              className="rounded-[32px] bg-[#fffaf2] p-3 shadow-[0_26px_90px_rgba(0,0,0,0.08)]"
+            >
+              <div className="overflow-hidden rounded-[26px] border border-black/8 bg-[#191612]">
+                <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/35">
+                      Map view
+                    </p>
+                    <h3 className="mt-2 text-xl font-semibold leading-snug tracking-[-0.03em] text-white">
+                      Nearby reports
+                    </h3>
                   </div>
 
-                  <div className="relative h-80 overflow-hidden rounded-2xl border border-white/10 bg-[#121212]">
-                    <div className="absolute left-[28%] top-[38%] h-5 w-5 rounded-full bg-[#ff6b35] ring-8 ring-[#ff6b35]/30" />
-                    <div className="absolute left-[68%] top-[46%] h-5 w-5 rounded-full bg-amber-500 ring-8 ring-amber-500/30" />
-                    <div className="absolute left-[46%] top-[70%] h-5 w-5 rounded-full bg-rose-500 ring-8 ring-rose-500/30 animate-pulse" />
+                  <button
+                    type="button"
+                    onClick={goToLogin}
+                    className="rounded-full bg-white px-4 py-2 text-xs font-semibold text-black"
+                  >
+                    Open
+                  </button>
+                </div>
 
-                    <div className="absolute bottom-5 left-5 right-5 rounded-2xl border border-white/20 bg-black/60 p-5 backdrop-blur-md">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <span className="mb-2 inline-flex rounded-md border border-rose-500/30 bg-rose-500/20 px-3 py-1 text-[10px] font-medium uppercase tracking-widest text-rose-300">
-                            Lost
-                          </span>
-                          <h4 className="mb-1 text-lg font-medium leading-none tracking-tight">
-                            Luna · Golden Retriever
-                          </h4>
-                          <p className="text-xs font-normal text-slate-400">
-                            Last seen near Barangay Hall, Quezon City
+                <div className="relative h-[480px] bg-[linear-gradient(135deg,#22322f,#111817)]">
+                  <div className="absolute inset-0 opacity-25 [background-image:linear-gradient(rgba(255,255,255,.12)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.12)_1px,transparent_1px)] [background-size:48px_48px]" />
+                  <div className="absolute left-[21%] top-[32%] h-5 w-5 rounded-full bg-[#ff6b35] ring-[18px] ring-[#ff6b35]/20" />
+                  <div className="absolute left-[63%] top-[26%] h-4 w-4 rounded-full bg-white ring-[14px] ring-white/15" />
+                  <div className="absolute left-[54%] top-[66%] h-4 w-4 rounded-full bg-[#ffb39a] ring-[14px] ring-[#ffb39a]/18" />
+
+                  <div className="absolute bottom-5 left-5 right-5 rounded-[24px] border border-white/12 bg-black/52 p-5 backdrop-blur-xl">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#ffb39a]">
+                      Search radius
+                    </p>
+
+                    <div className="mt-5 grid gap-4 sm:grid-cols-3">
+                      {[
+                        ["3", "active reports"],
+                        ["1", "possible match"],
+                        ["6", "recent sightings"],
+                      ].map(([value, label]) => (
+                        <div key={label}>
+                          <p className="font-serif text-4xl tracking-[-0.06em] text-white">
+                            {value}
+                          </p>
+                          <p className="mt-1 text-xs text-white/44">
+                            {label}
                           </p>
                         </div>
-                        <button onClick={goToLogin} className="rounded-full bg-white px-6 py-3 text-xs font-medium text-black transition-all hover:scale-105 active:scale-95">
-                          View
-                        </button>
-                      </div>
+                      ))}
                     </div>
                   </div>
                 </div>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* SAFETY */}
+        <section
+          id="safety"
+          className="px-3 py-10 sm:px-4 md:px-6"
+        >
+          <div className="mx-auto max-w-[1500px] rounded-[28px] bg-[#fffaf2] p-6 sm:rounded-[42px] sm:p-10 lg:p-14">
+            <div className="grid gap-12 lg:grid-cols-[0.86fr_1.14fr] lg:items-start">
+              <motion.div
+                initial="hidden"
+                whileInView="show"
+                viewport={{ once: true }}
+                variants={fadeUp}
+              >
+                <p className="mb-7 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#ff6b35]">
+                  Trust and safety
+                </p>
+
+                <h2 className="font-serif text-[clamp(2rem,4vw,4rem)] font-medium leading-[1.16] tracking-[-0.032em]">
+                  Helpful does not mean chaotic.
+                </h2>
+              </motion.div>
+
+              <motion.div
+                initial="hidden"
+                whileInView="show"
+                viewport={{ once: true, margin: "-100px" }}
+                variants={stagger}
+                className="divide-y divide-black/10 border-y border-black/10"
+              >
+                {safety.map((point) => (
+                  <motion.div
+                    key={point}
+                    variants={item}
+                    className="grid gap-5 py-7 sm:grid-cols-[40px_1fr] sm:items-center"
+                  >
+                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#15120f] text-sm font-semibold text-white">
+                      ✓
+                    </span>
+                    <p className="text-2xl font-semibold leading-snug tracking-[-0.035em] text-black sm:text-3xl">
+                      {point}
+                    </p>
+                  </motion.div>
+                ))}
               </motion.div>
             </div>
-
-            {/* Features Grid */}
-            <motion.div initial="hidden" whileInView="show" viewport={{ once: true, margin: "-100px" }} variants={staggerContainer} className="mt-24 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {features.map((feature) => (
-                <motion.div key={feature.title} variants={staggerItem} className="rounded-[1.5rem] border border-white/10 bg-white/5 p-8 transition-all hover:bg-white/10">
-                  <div className="mb-6 text-sm font-medium tracking-widest text-[#ff6b35]">
-                    {feature.label}
-                  </div>
-                  <h3 className="mb-3 text-lg font-medium tracking-tight text-white">{feature.title}</h3>
-                  <p className="text-sm font-normal leading-relaxed text-slate-400">{feature.copy}</p>
-                </motion.div>
-              ))}
-            </motion.div>
-
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* 4. COMMUNITY */}
-      <section id="community" className="py-12">
-        <div className="mx-auto max-w-[1400px] px-4 md:px-6">
-          <div className="rounded-[2.5rem] bg-[#f8f9fa] px-6 py-20 md:px-16 lg:py-24">
-            
-            <motion.div initial="hidden" whileInView="show" viewport={{ once: true, margin: "-100px" }} variants={fadeUp} className="mb-16 flex flex-col items-start md:flex-row md:items-end md:justify-between">
-              <div>
-                <p className="mb-4 text-xs font-medium uppercase tracking-[0.2em] text-[#ff6b35]">Reunited cases</p>
-                <h2 className="font-serif text-4xl font-medium tracking-tight text-slate-900 md:text-5xl">
-                  Every update can lead<br />to a reunion.
-                </h2>
-              </div>
-              <button onClick={goToLogin} className="mt-6 flex items-center gap-2 border-b border-slate-900 pb-1 text-sm font-medium text-slate-900 transition-opacity hover:opacity-60 md:mt-0">
-                View all stories <span className="text-lg leading-none">—</span>
-              </button>
+        {/* TEAM */}
+        <section
+          id="team"
+          className="px-4 py-20 sm:px-6 lg:py-24"
+        >
+          <div className="mx-auto max-w-[1320px]">
+            <motion.div
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true }}
+              variants={fadeUp}
+              className="mb-14 grid gap-8 lg:grid-cols-[0.7fr_1.3fr]"
+            >
+              <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#ff6b35]">
+                Capstone team
+              </p>
+
+              <h2 className="font-serif text-[clamp(2rem,4vw,4rem)] font-medium leading-[1.16] tracking-[-0.032em]">
+                Built by a team focused on clearer community
+                response.
+              </h2>
             </motion.div>
 
-            <motion.div initial="hidden" whileInView="show" viewport={{ once: true, margin: "-100px" }} variants={staggerContainer} className="grid gap-6 md:grid-cols-3">
-              {reunitedStories.map((story) => (
-                <motion.article key={story.name} variants={staggerItem} className="group overflow-hidden rounded-[2rem] border border-slate-100 bg-white shadow-sm transition-all hover:shadow-xl">
-                  <div className="relative h-64 overflow-hidden">
-                    <div className="absolute inset-0 z-10 bg-black/5 transition-colors group-hover:bg-transparent" />
-                    <img src={story.image} alt={story.name} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                    
-                    <div className="absolute left-4 top-4 z-20 inline-flex items-center gap-2 rounded-full border border-white/50 bg-white/80 px-3 py-1.5 text-xs font-medium uppercase tracking-wider text-slate-900 backdrop-blur-md">
-                      <span className="h-2 w-2 rounded-full bg-emerald-500" /> Reunited
-                    </div>
+            <motion.div
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, margin: "-100px" }}
+              variants={stagger}
+              className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5"
+            >
+              {developers.map((developer) => (
+                <motion.article
+                  key={developer.name}
+                  variants={item}
+                  className="rounded-[28px] border border-black/8 bg-[#fffaf2] p-5 transition-all hover:-translate-y-1 hover:bg-white hover:shadow-[0_20px_60px_rgba(0,0,0,0.06)]"
+                >
+                  <div className="mb-10 flex h-14 w-14 items-center justify-center rounded-full bg-[#15120f] font-serif text-lg text-white">
+                    {getInitials(developer.name)}
                   </div>
-
-                  <div className="p-8">
-                    <h3 className="font-serif text-2xl font-medium tracking-tight text-slate-900">{story.name}</h3>
-                    <p className="mt-2 text-sm font-normal text-slate-500">{story.location} · {story.time}</p>
-                    <div className="my-6 h-[1px] w-full bg-slate-100" />
-                    <p className="text-sm font-normal leading-relaxed text-slate-600">{story.story}</p>
-                  </div>
+                  <h3 className="text-lg font-semibold leading-snug tracking-[-0.035em] text-black">
+                    {developer.name}
+                  </h3>
+                  <p className="mt-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-black/35">
+                    {developer.role}
+                  </p>
                 </motion.article>
               ))}
             </motion.div>
-
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* 5. DEVELOPERS */}
-      <section id="developers" className="py-12">
-        <div className="mx-auto max-w-[1400px] px-4 md:px-6">
-          <div className="rounded-[2.5rem] border border-slate-200 bg-white px-6 py-20 text-center md:px-16 lg:py-24">
-            
-            <motion.div initial="hidden" whileInView="show" viewport={{ once: true, margin: "-100px" }} variants={fadeUp} className="mx-auto mb-20 max-w-2xl">
-              <p className="mb-4 text-xs font-medium uppercase tracking-[0.2em] text-[#ff6b35]">Capstone team</p>
-              <h2 className="font-serif text-4xl font-medium tracking-tight text-slate-900 md:text-5xl">
-                Built by a team focused on community impact.
-              </h2>
-            </motion.div>
+        {/* FINAL CTA */}
+        <section className="px-3 pb-6 sm:px-4 md:px-6">
+          <div className="mx-auto max-w-[1500px] overflow-hidden rounded-[28px] bg-[#ff6b35] sm:rounded-[42px]">
+            <motion.div
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true }}
+              variants={fadeUp}
+              className="relative px-6 py-20 text-center text-white sm:px-10 lg:px-16 lg:py-24"
+            >
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.36),transparent_44%)]" />
 
-            <motion.div initial="hidden" whileInView="show" viewport={{ once: true, margin: "-100px" }} variants={staggerContainer} className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
-              {developers.map((developer) => (
-                <motion.div key={developer.name} variants={staggerItem} className="group flex flex-col items-center rounded-[2rem] border border-slate-100 bg-[#fafafa] p-8 transition-all hover:border-slate-200 hover:bg-white hover:shadow-lg">
-                  <div className="mb-5 flex h-20 w-20 items-center justify-center rounded-full border border-slate-200 bg-white font-serif text-xl font-medium text-slate-900 shadow-sm transition-transform group-hover:scale-110">
-                    {getInitials(developer.name)}
-                  </div>
-                  <h3 className="font-medium text-slate-900">{developer.name}</h3>
-                  <p className="mt-2 text-[10px] font-medium uppercase tracking-widest text-slate-400">
-                    {developer.role}
-                  </p>
-                </motion.div>
-              ))}
-            </motion.div>
+              <div className="relative z-10 mx-auto max-w-5xl">
+                <img
+                  src={logoSrc}
+                  alt="Pawnect logo"
+                  className="mx-auto mb-10 h-10 w-auto object-contain brightness-0 invert"
+                />
 
-          </div>
-        </div>
-      </section>
+                <h2 className="font-serif text-[clamp(2.4rem,5.4vw,5rem)] font-medium leading-[1.12] tracking-[-0.04em]">
+                  Start with one clear report.
+                </h2>
 
-      {/* 6. FINAL CTA */}
-      <section className="py-12 pb-24">
-        <div className="mx-auto max-w-[1400px] px-4 md:px-6">
-          <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp} className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#ff6b35] to-[#f7c59f] px-6 py-24 text-center shadow-lg md:py-32">
-            
-            <div className="relative z-10 mx-auto max-w-3xl">
-              <div className="mx-auto mb-10 flex justify-center">
-                <img src={logoSrc} alt="Pawnect logo" className="h-12 w-auto object-contain brightness-0 invert" />
+                <p className="mx-auto mt-9 max-w-2xl text-base leading-relaxed text-white/80 sm:text-lg">
+                  Create a lost or found case, search nearby
+                  reports, and help the right update reach the
+                  right person.
+                </p>
+
+                <button
+                  type="button"
+                  onClick={goToLogin}
+                  className="mt-10 rounded-full bg-white px-8 py-4 text-sm font-semibold text-black transition-all hover:-translate-y-1 hover:bg-[#fff7ed]"
+                >
+                  Get started
+                </button>
               </div>
-              <h2 className="font-serif text-5xl font-medium tracking-tight text-white md:text-7xl">
-                Help a pet find home today.
-              </h2>
-              <p className="mx-auto mt-8 max-w-xl text-lg font-normal leading-relaxed text-white/90">
-                Start searching, report a pet, or follow nearby cases in your community through Pawnect.
-              </p>
-              <button onClick={goToLogin} className="mt-10 inline-flex items-center gap-3 rounded-full bg-white px-8 py-4 text-sm font-medium text-slate-900 shadow-xl transition-all hover:scale-105 active:scale-95">
-                Get started
-                <span className="text-lg leading-none">—</span>
-              </button>
-            </div>
-            
-          </motion.div>
-        </div>
-      </section>
+            </motion.div>
+          </div>
+        </section>
+      </main>
 
-      {/* FOOTER */}
-      <footer className="border-t border-slate-200 bg-white px-6 py-12">
-        <div className="mx-auto flex max-w-[1400px] flex-col gap-8 md:flex-row md:items-center md:justify-between">
+      <footer className="px-4 py-9 sm:px-6">
+        <div className="mx-auto flex max-w-[1500px] flex-col gap-6 border-t border-black/10 pt-8 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-4">
-            <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-              <img src={logoSrc} alt="Pawnect logo" className="h-6 w-auto object-contain opacity-60 grayscale transition-opacity hover:opacity-100" />
-            </button>
-            <span className="text-slate-300">/</span>
-            <p className="text-xs font-medium text-slate-500">
-              A location-based pet reporting platform.
+            <img
+              src={logoSrc}
+              alt="Pawnect logo"
+              className="h-6 w-auto object-contain opacity-70 grayscale"
+            />
+            <p className="text-xs font-medium text-black/42">
+              A location-based pet recovery platform.
             </p>
           </div>
 
-          <div className="flex gap-8 text-xs font-medium text-slate-500">
-            <a href="#product" className="transition-colors hover:text-slate-900">Product</a>
-            <a href="#how-it-works" className="transition-colors hover:text-slate-900">How it works</a>
-            <a href="#community" className="transition-colors hover:text-slate-900">Community</a>
-            <a href="#developers" className="transition-colors hover:text-slate-900">Developers</a>
+          <div className="flex flex-wrap gap-5 text-xs font-medium text-black/42">
+            {navItems.map((nav) => (
+              <a
+                key={nav.label}
+                href={nav.href}
+                className="transition-colors hover:text-black"
+              >
+                {nav.label}
+              </a>
+            ))}
           </div>
 
-          <p className="text-xs font-medium text-slate-400">
+          <p className="text-xs font-medium text-black/32">
             © 2026 Pawnect. Capstone prototype.
           </p>
         </div>
