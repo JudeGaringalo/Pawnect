@@ -2,7 +2,10 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import { motion } from "motion/react";
 
-const logoSrc = "/images/logo.png";
+const logoSrc =
+  "https://raw.githubusercontent.com/JudeGaringalo/Pawnect/refs/heads/main/public/images/logo.png";
+const favicon =
+  "https://raw.githubusercontent.com/JudeGaringalo/Pawnect/refs/heads/main/public/images/favicon.png";
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -119,11 +122,14 @@ export default function LandingPage() {
   ];
 
   const developers = [
-    { name: "Maria Santos", role: "Project Lead" },
-    { name: "Juan Dela Cruz", role: "Frontend Developer" },
-    { name: "Sofia Reyes", role: "UI/UX Designer" },
-    { name: "Miguel Torres", role: "Backend Developer" },
-    { name: "Ana Castillo", role: "QA Specialist" },
+    {
+      name: "Lester Jude Garingalo",
+      role: "Full-Stack Developer",
+    },
+    { name: "Andrea Sai Malicdem", role: "Documentation" },
+    { name: "Cornelius James Lasala", role: "Documentation" },
+    { name: "Ruy Inigo Fajutagana", role: "Documentation" },
+    { name: "Carlvin Cabug-os", role: "Documentation" },
   ];
 
   const getInitials = (name: string) =>
@@ -192,12 +198,11 @@ export default function LandingPage() {
           >
             <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/80 shadow-sm">
               <img
-                src={logoSrc}
+                src={favicon}
                 alt="Pawnect logo"
                 className="h-6 w-auto object-contain"
               />
             </span>
-
             <span className="hidden text-[11px] font-semibold uppercase tracking-[0.18em] text-black/72 md:block">
               Pet recovery system
             </span>
@@ -223,7 +228,6 @@ export default function LandingPage() {
             >
               Log in
             </button>
-
             <button
               type="button"
               onClick={goToLogin}
@@ -271,14 +275,12 @@ export default function LandingPage() {
                     >
                       Pawnect
                     </motion.p>
-
                     <motion.h1
                       variants={item}
                       className="font-serif text-[clamp(2.8rem,6.8vw,6rem)] font-medium leading-[1.1] tracking-[-0.04em]"
                     >
                       Bring them back into reach.
                     </motion.h1>
-
                     <motion.div
                       variants={item}
                       className="mt-9 max-w-2xl border-l border-white/18 pl-5 sm:mt-10 sm:pl-7"
@@ -290,7 +292,6 @@ export default function LandingPage() {
                         in one place.
                       </p>
                     </motion.div>
-
                     <motion.div
                       variants={item}
                       className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center"
@@ -302,7 +303,6 @@ export default function LandingPage() {
                       >
                         Report a pet
                       </button>
-
                       <button
                         type="button"
                         onClick={() =>
@@ -344,7 +344,6 @@ export default function LandingPage() {
                             Luna · Golden Retriever
                           </h2>
                         </div>
-
                         <span className="rounded-full bg-[#ff6b35]/12 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#d94f21]">
                           Lost
                         </span>
@@ -373,7 +372,6 @@ export default function LandingPage() {
                             <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/35">
                               Case timeline
                             </p>
-
                             <div className="mt-5 space-y-5">
                               {[
                                 [
@@ -436,7 +434,7 @@ export default function LandingPage() {
         </section>
 
         {/* EDITORIAL STATEMENT */}
-        <section className="px-4 py-20 sm:px-6 lg:py-24">
+        <section className="px-4 py-18 sm:px-6 lg:py-24">
           <div className="mx-auto grid max-w-[1320px] gap-10 lg:grid-cols-[0.7fr_1.3fr] lg:gap-16">
             <motion.p
               initial="hidden"
@@ -447,7 +445,6 @@ export default function LandingPage() {
             >
               Why it exists
             </motion.p>
-
             <motion.div
               initial="hidden"
               whileInView="show"
@@ -491,7 +488,6 @@ export default function LandingPage() {
                     Urgent details, without the noise.
                   </h2>
                 </div>
-
                 <p className="max-w-lg text-base leading-relaxed text-white/58 sm:text-lg">
                   Each case is built for scanning: animal photo,
                   status, location, update time, and the most
@@ -518,24 +514,19 @@ export default function LandingPage() {
                         alt={`${report.name} ${report.type} pet`}
                         className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                       />
-
                       <div className="absolute inset-0 bg-gradient-to-t from-black/76 via-black/18 to-transparent" />
-
                       <div className="absolute left-4 right-4 top-4 flex items-center justify-between gap-3">
                         <p className="rounded-full bg-white/82 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-black backdrop-blur-xl">
                           {report.detail}
                         </p>
                       </div>
-
                       <div className="absolute bottom-4 left-4 right-4">
                         <h3 className="mb-4 font-serif text-4xl font-medium leading-none tracking-[-0.055em] text-white">
                           {report.name}
                         </h3>
-
                         <p className="mb-5 text-sm leading-relaxed text-white/72">
                           {report.note}
                         </p>
-
                         <div className="flex items-center justify-between gap-3">
                           <span className="rounded-full bg-[#ff6b35] px-3.5 py-2 text-[10px] font-semibold uppercase tracking-[0.17em] text-white">
                             {report.type}
@@ -556,7 +547,7 @@ export default function LandingPage() {
         {/* HOW IT WORKS */}
         <section
           id="how-it-works"
-          className="px-4 py-20 sm:px-6 lg:py-24"
+          className="px-4 py-18 sm:px-6 lg:py-24"
         >
           <div className="mx-auto max-w-[1320px]">
             <motion.div
@@ -569,7 +560,6 @@ export default function LandingPage() {
               <p className="mb-7 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#ff6b35]">
                 How it works
               </p>
-
               <h2 className="font-serif text-[clamp(2rem,4.2vw,4.2rem)] font-medium leading-[1.16] tracking-[-0.035em]">
                 Designed for the first hour of searching.
               </h2>
@@ -600,7 +590,6 @@ export default function LandingPage() {
                         <h3 className="text-2xl font-semibold leading-snug tracking-[-0.03em] text-black sm:text-3xl">
                           {step.title}
                         </h3>
-
                         <motion.p
                           initial={false}
                           animate={{
@@ -654,12 +643,10 @@ export default function LandingPage() {
                   <p className="mb-7 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#ffb39a]">
                     Product system
                   </p>
-
                   <h2 className="font-serif text-[clamp(2rem,4.2vw,4.2rem)] font-medium leading-[1.16] tracking-[-0.035em]">
                     Not a post. A recovery case.
                   </h2>
                 </div>
-
                 <p className="mt-9 max-w-xl text-base leading-relaxed text-white/58 sm:text-lg lg:mt-20">
                   The product is made of connected recovery
                   tools — reporting, search, map context,
@@ -671,7 +658,6 @@ export default function LandingPage() {
               <div className="pawnect-marquee relative overflow-hidden rounded-[28px] border border-white/10 bg-[#211b16] py-5">
                 <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-[#211b16] to-transparent" />
                 <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-[#211b16] to-transparent" />
-
                 <div className="pawnect-marquee-track flex w-max gap-4 px-4">
                   {marqueeFeatures.map((feature, index) => (
                     <article
@@ -707,7 +693,7 @@ export default function LandingPage() {
         </section>
 
         {/* MAP / UI MOMENT */}
-        <section className="px-4 py-20 sm:px-6 lg:py-24">
+        <section className="px-4 py-18 sm:px-6 lg:py-24">
           <div className="mx-auto grid max-w-[1320px] gap-12 lg:grid-cols-[1fr_1fr] lg:items-center">
             <motion.div
               initial="hidden"
@@ -718,12 +704,10 @@ export default function LandingPage() {
               <p className="mb-7 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#ff6b35]">
                 Location context
               </p>
-
               <h2 className="font-serif text-[clamp(2rem,4vw,4rem)] font-medium leading-[1.16] tracking-[-0.032em]">
                 The map is not decoration. It is the search
                 surface.
               </h2>
-
               <p className="mt-9 max-w-xl text-base leading-relaxed text-black/56 sm:text-lg">
                 Lost pet recovery is local. Pawnect makes area,
                 time, and movement visible so users can
@@ -751,7 +735,6 @@ export default function LandingPage() {
                       Nearby reports
                     </h3>
                   </div>
-
                   <button
                     type="button"
                     onClick={goToLogin}
@@ -766,12 +749,10 @@ export default function LandingPage() {
                   <div className="absolute left-[21%] top-[32%] h-5 w-5 rounded-full bg-[#ff6b35] ring-[18px] ring-[#ff6b35]/20" />
                   <div className="absolute left-[63%] top-[26%] h-4 w-4 rounded-full bg-white ring-[14px] ring-white/15" />
                   <div className="absolute left-[54%] top-[66%] h-4 w-4 rounded-full bg-[#ffb39a] ring-[14px] ring-[#ffb39a]/18" />
-
                   <div className="absolute bottom-5 left-5 right-5 rounded-[24px] border border-white/12 bg-black/52 p-5 backdrop-blur-xl">
                     <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#ffb39a]">
                       Search radius
                     </p>
-
                     <div className="mt-5 grid gap-4 sm:grid-cols-3">
                       {[
                         ["3", "active reports"],
@@ -811,7 +792,6 @@ export default function LandingPage() {
                 <p className="mb-7 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#ff6b35]">
                   Trust and safety
                 </p>
-
                 <h2 className="font-serif text-[clamp(2rem,4vw,4rem)] font-medium leading-[1.16] tracking-[-0.032em]">
                   Helpful does not mean chaotic.
                 </h2>
@@ -846,7 +826,7 @@ export default function LandingPage() {
         {/* TEAM */}
         <section
           id="team"
-          className="px-4 py-20 sm:px-6 lg:py-24"
+          className="px-4 py-18 sm:px-6 lg:py-24"
         >
           <div className="mx-auto max-w-[1320px]">
             <motion.div
@@ -859,7 +839,6 @@ export default function LandingPage() {
               <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#ff6b35]">
                 Capstone team
               </p>
-
               <h2 className="font-serif text-[clamp(2rem,4vw,4rem)] font-medium leading-[1.16] tracking-[-0.032em]">
                 Built by a team focused on clearer community
                 response.
@@ -905,24 +884,20 @@ export default function LandingPage() {
               className="relative px-6 py-20 text-center text-white sm:px-10 lg:px-16 lg:py-24"
             >
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.36),transparent_44%)]" />
-
               <div className="relative z-10 mx-auto max-w-5xl">
                 <img
                   src={logoSrc}
                   alt="Pawnect logo"
                   className="mx-auto mb-10 h-10 w-auto object-contain brightness-0 invert"
                 />
-
                 <h2 className="font-serif text-[clamp(2.4rem,5.4vw,5rem)] font-medium leading-[1.12] tracking-[-0.04em]">
                   Start with one clear report.
                 </h2>
-
                 <p className="mx-auto mt-9 max-w-2xl text-base leading-relaxed text-white/80 sm:text-lg">
                   Create a lost or found case, search nearby
                   reports, and help the right update reach the
                   right person.
                 </p>
-
                 <button
                   type="button"
                   onClick={goToLogin}
