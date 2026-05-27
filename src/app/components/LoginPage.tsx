@@ -54,7 +54,7 @@ export default function LoginPage() {
         return;
       }
 
-      toast.success("Profile created");
+      toast.success("Entered prototype");
       navigate("/feed");
     } finally {
       setSubmitting(false);
@@ -89,8 +89,8 @@ export default function LoginPage() {
             </h1>
 
             <p className="text-slate-600">
-              Enter any new username and password to create a
-              prototype profile.
+              Enter a username and password to access the
+              prototype.
             </p>
           </div>
 
@@ -133,7 +133,7 @@ export default function LoginPage() {
               {submitting ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  Creating profile...
+                  Entering...
                 </>
               ) : (
                 "Enter Prototype"
@@ -143,8 +143,8 @@ export default function LoginPage() {
 
           <div className="mt-8 pt-6 border-t border-slate-200 text-center">
             <p className="text-xs text-slate-500">
-              Prototype only. Each username can only be used
-              once.
+              Existing usernames continue the same prototype
+              profile. New usernames create a new profile.
             </p>
           </div>
         </div>

@@ -14,6 +14,7 @@ const serviceRoleKey = Deno.env.get(
 const supabase = createClient(supabaseUrl, serviceRoleKey);
 
 app.use("*", logger(console.log));
+
 app.use(
   "/*",
   cors({
@@ -117,8 +118,9 @@ function mapReportForFrontend(
     db_status: report.status,
     case_status: report.status,
 
-    // Compatibility for old frontend screens that expect status = lost/found/reunited.
+    // Frontend compatibility
     status: visibleStatus,
+    display_status: visibleStatus,
 
     report_type: report.report_type,
     animal_type: report.animal_type,
@@ -127,18 +129,26 @@ function mapReportForFrontend(
     longitude: report.longitude,
     image_url: report.image_url,
 
-    display_status: visibleStatus,
     reaction_count: reactionCount,
     comment_count: commentCount,
     user_reacted: userReactionIds.has(report.id),
     user_saved: userSavedIds.has(report.id),
 
-    // Compatibility aliases for old Figma Make code.
+    // Old Figma-generated field names
     pet_type: report.animal_type,
     location: report.location_name,
     lat: report.latitude,
     lng: report.longitude,
     photo_url: report.image_url,
+    incident_date: report.date_reported,
+    incident_time: null,
+    reunited_at:
+      report.status === "reunited" ? report.created_at : null,
+    reunited_story:
+      report.status === "reunited"
+        ? report.description ||
+          "This pet has been marked as reunited."
+        : null,
   };
 }
 
@@ -152,38 +162,29 @@ function getToken(c: any): string | null {
 async function getUser(token: string | null) {
   if (!token) return null;
 
-  if (token.startsWith("mock:")) {
-    const profileId = token.replace("mock:", "");
+  // Only mock tokens are accepted. No Google. No Supabase Auth.
+  if (!token.startsWith("mock:")) return null;
 
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", profileId)
-      .maybeSingle();
+  const profileId = token.replace("mock:", "");
 
-    if (!profile) return null;
+  const { data: profile, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", profileId)
+    .maybeSingle();
 
-    return {
-      id: profile.id,
-      email: profile.email,
-      user_metadata: {
-        full_name:
-          profile.full_name ||
-          profile.username ||
-          "Pawnect User",
-        avatar_url: profile.avatar_url,
-      },
-      app_metadata: {},
-    };
-  }
+  if (error || !profile) return null;
 
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser(token);
-
-  if (error || !user) return null;
-  return user;
+  return {
+    id: profile.id,
+    email: profile.email,
+    user_metadata: {
+      full_name:
+        profile.full_name || profile.username || "Pawnect User",
+      avatar_url: profile.avatar_url,
+    },
+    app_metadata: {},
+  };
 }
 
 async function getUserFromRequest(c: any) {
@@ -201,38 +202,7 @@ async function ensureProfile(user: any) {
 
   if (existingProfile) return mapProfile(existingProfile);
 
-  const fullName =
-    user.user_metadata?.full_name ||
-    user.user_metadata?.name ||
-    user.email?.split("@")[0] ||
-    "Pawnect User";
-
-  const avatarUrl =
-    user.user_metadata?.avatar_url ||
-    user.user_metadata?.picture ||
-    null;
-
-  const profilePayload = {
-    id: user.id,
-    full_name: fullName,
-    email: user.email ?? null,
-    avatar_url: avatarUrl,
-    role: "user",
-    location: "Philippines",
-  };
-
-  const { data: newProfile, error } = await supabase
-    .from("profiles")
-    .upsert(profilePayload, { onConflict: "id" })
-    .select("*")
-    .single();
-
-  if (error) {
-    console.log("Profile upsert error:", error);
-    return null;
-  }
-
-  return mapProfile(newProfile);
+  return null;
 }
 
 async function isAdmin(token: string | null): Promise<boolean> {
@@ -271,29 +241,44 @@ async function logActivity({
   }
 }
 
-(async () => {
-  const bucketName = "pet-photos";
+async function ensureStorageBucket() {
+  try {
+    const bucketName = "pet-photos";
 
-  const { data: buckets } =
-    await supabase.storage.listBuckets();
-  const bucketExists = buckets?.some(
-    (b: any) => b.name === bucketName,
-  );
+    const { data: buckets } =
+      await supabase.storage.listBuckets();
+    const bucketExists = buckets?.some(
+      (b: any) => b.name === bucketName,
+    );
 
-  if (!bucketExists) {
-    await supabase.storage.createBucket(bucketName, {
-      public: true,
-    });
+    if (!bucketExists) {
+      await supabase.storage.createBucket(bucketName, {
+        public: true,
+      });
 
-    console.log(`Created bucket: ${bucketName}`);
+      console.log(`Created bucket: ${bucketName}`);
+    }
+  } catch (err) {
+    console.log("Storage bucket check failed:", err);
   }
-})();
+}
 
-// ─── HEALTH ──────────────────────────────────────────────────────────────────
+ensureStorageBucket();
 
-app.get(`${PREFIX}/health`, (c) => c.json({ status: "ok" }));
+// ─────────────────────────────────────────────────────────────────────────────
+// HEALTH
+// ─────────────────────────────────────────────────────────────────────────────
 
-// ─── MOCK LOGIN ──────────────────────────────────────────────────────────────
+app.get(`${PREFIX}/health`, (c) => {
+  return c.json({ status: "ok" });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MOCK LOGIN
+// Uses SQL function: mock_login_or_create(input_username, raw_password)
+// Existing username = let them in.
+// New username = create profile + hashed credential.
+// ─────────────────────────────────────────────────────────────────────────────
 
 app.post(`${PREFIX}/mock-login`, async (c: any) => {
   try {
@@ -311,101 +296,43 @@ app.post(`${PREFIX}/mock-login`, async (c: any) => {
       );
     }
 
-    // 1. Check if username already exists.
-    const { data: existingProfile, error: lookupError } =
-      await supabase
-        .from("profiles")
-        .select("*")
-        .eq("username", username)
-        .maybeSingle();
-
-    if (lookupError) {
-      console.log("Mock username lookup error:", lookupError);
-      return c.json({ error: lookupError.message }, 500);
-    }
-
-    // 2. If username exists, LET THEM IN.
-    // This is mockup behavior. We do not block reused usernames.
-    if (existingProfile) {
-      // If this old/existing profile has no credential row yet, create one with hashed password.
-      const { data: existingCredential } = await supabase
-        .from("mock_credentials")
-        .select("id")
-        .eq("username", username)
-        .maybeSingle();
-
-      if (!existingCredential) {
-        await supabase.rpc("upsert_mock_credential", {
-          target_profile_id: existingProfile.id,
-          target_username: username,
-          raw_password: password,
-        });
-      }
-
-      return c.json({
-        data: {
-          profile: mapProfile(existingProfile),
-          token: `mock:${existingProfile.id}`,
-        },
-      });
-    }
-
-    // 3. If username does not exist, create profile.
-    const { data: createdProfile, error: createProfileError } =
-      await supabase
-        .from("profiles")
-        .insert({
-          username,
-          full_name: username,
-          email: null,
-          avatar_url: null,
-          role: "user",
-          location: "Philippines",
-        })
-        .select("*")
-        .single();
-
-    if (createProfileError) {
-      console.log(
-        "Mock profile create error:",
-        createProfileError,
-      );
-      return c.json({ error: createProfileError.message }, 500);
-    }
-
-    // 4. Store hashed password in mock_credentials, not profiles.
-    const { error: credentialError } = await supabase.rpc(
-      "upsert_mock_credential",
+    const { data, error } = await supabase.rpc(
+      "mock_login_or_create",
       {
-        target_profile_id: createdProfile.id,
-        target_username: username,
+        input_username: username,
         raw_password: password,
       },
     );
 
-    if (credentialError) {
-      console.log(
-        "Mock credential create error:",
-        credentialError,
+    if (error) {
+      console.log("mock_login_or_create error:", error);
+      return c.json({ error: error.message }, 500);
+    }
+
+    const profile = Array.isArray(data) ? data[0] : data;
+
+    if (!profile?.id) {
+      return c.json(
+        { error: "Profile could not be created" },
+        500,
       );
-      return c.json({ error: credentialError.message }, 500);
     }
 
     await logActivity({
-      user_id: createdProfile.id,
-      action: "created_mock_profile",
+      user_id: profile.id,
+      action: "mock_login",
       target_type: "profile",
-      target_id: createdProfile.id,
+      target_id: profile.id,
     });
 
     return c.json({
       data: {
-        profile: mapProfile(createdProfile),
-        token: `mock:${createdProfile.id}`,
+        profile: mapProfile(profile),
+        token: `mock:${profile.id}`,
       },
     });
   } catch (err: any) {
-    console.log("POST mock-login error:", err);
+    console.log("POST /mock-login error:", err);
 
     return c.json(
       { error: err.message || "Mock login failed" },
@@ -414,7 +341,9 @@ app.post(`${PREFIX}/mock-login`, async (c: any) => {
   }
 });
 
-// ─── REPORTS ─────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// REPORTS
+// ─────────────────────────────────────────────────────────────────────────────
 
 app.get(`${PREFIX}/reports`, async (c: any) => {
   try {
@@ -559,15 +488,15 @@ app.get(`${PREFIX}/reports`, async (c: any) => {
       );
     }
 
-    const mappedData = (data || []).map((report: any) =>
-      mapReportForFrontend(
-        report,
-        userReactionIds,
-        userSavedIds,
+    return c.json({
+      data: (data || []).map((report: any) =>
+        mapReportForFrontend(
+          report,
+          userReactionIds,
+          userSavedIds,
+        ),
       ),
-    );
-
-    return c.json({ data: mappedData });
+    });
   } catch (err: any) {
     console.log("GET /reports server error:", err);
 
@@ -585,8 +514,6 @@ app.post(`${PREFIX}/reports`, async (c: any) => {
     if (!user) {
       return c.json({ error: "Authentication required" }, 401);
     }
-
-    await ensureProfile(user);
 
     const body = await c.req.json();
 
@@ -806,8 +733,8 @@ app.patch(`${PREFIX}/reports/:id`, async (c: any) => {
       return c.json({ error: "Report not found" }, 404);
     }
 
-    const isOwner = existingReport.user_id === user.id;
     const admin = await isAdmin(getToken(c));
+    const isOwner = existingReport.user_id === user.id;
 
     if (!isOwner && !admin) {
       return c.json(
@@ -821,10 +748,11 @@ app.patch(`${PREFIX}/reports/:id`, async (c: any) => {
 
     const updatePayload: Record<string, any> = {};
 
-    if (body.status)
+    if (body.status !== undefined) {
       updatePayload.status = normalizeReportStatus(body.status);
+    }
 
-    if (body.report_type) {
+    if (body.report_type !== undefined) {
       updatePayload.report_type = normalizeReportType(
         body.report_type,
       );
@@ -850,8 +778,9 @@ app.patch(`${PREFIX}/reports/:id`, async (c: any) => {
       updatePayload.size = body.size || null;
     if (body.gender !== undefined)
       updatePayload.gender = body.gender || null;
-    if (body.description !== undefined)
+    if (body.description !== undefined) {
       updatePayload.description = body.description || null;
+    }
 
     if (
       body.location_name !== undefined ||
@@ -959,7 +888,9 @@ app.patch(`${PREFIX}/reports/:id`, async (c: any) => {
   }
 });
 
-// ─── COMMENTS ────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// COMMENTS
+// ─────────────────────────────────────────────────────────────────────────────
 
 app.get(`${PREFIX}/reports/:id/comments`, async (c: any) => {
   try {
@@ -987,7 +918,7 @@ app.get(`${PREFIX}/reports/:id/comments`, async (c: any) => {
       `,
       )
       .eq("report_id", reportId)
-      .order("created_at", { ascending: true });
+      .order("created_at", { ascending: false });
 
     if (error) {
       console.log("GET comments error:", error);
@@ -1012,8 +943,6 @@ app.post(`${PREFIX}/reports/:id/comments`, async (c: any) => {
     if (!user) {
       return c.json({ error: "Authentication required" }, 401);
     }
-
-    await ensureProfile(user);
 
     const reportId = c.req.param("id");
     const body = await c.req.json();
@@ -1094,7 +1023,9 @@ app.post(`${PREFIX}/reports/:id/comments`, async (c: any) => {
   }
 });
 
-// ─── REACTIONS ───────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// REACTIONS
+// ─────────────────────────────────────────────────────────────────────────────
 
 app.post(`${PREFIX}/reactions/toggle`, async (c: any) => {
   try {
@@ -1108,6 +1039,10 @@ app.post(`${PREFIX}/reactions/toggle`, async (c: any) => {
     const reportId = body.report_id;
     const reactionType =
       body.reaction_type || body.type || "helpful";
+
+    if (!reportId) {
+      return c.json({ error: "report_id is required" }, 400);
+    }
 
     const { data: existing } = await supabase
       .from("reactions")
@@ -1186,7 +1121,9 @@ app.get(`${PREFIX}/reactions/:reportId`, async (c: any) => {
   }
 });
 
-// ─── SAVED POSTS ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// SAVED POSTS
+// ─────────────────────────────────────────────────────────────────────────────
 
 app.get(`${PREFIX}/saved-posts`, async (c: any) => {
   try {
@@ -1262,6 +1199,33 @@ app.get(`${PREFIX}/saved-posts`, async (c: any) => {
   }
 });
 
+async function toggleSavedPost(
+  userId: string,
+  reportId: string,
+) {
+  const { data: existing } = await supabase
+    .from("saved_posts")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("report_id", reportId)
+    .maybeSingle();
+
+  if (existing) {
+    await supabase
+      .from("saved_posts")
+      .delete()
+      .eq("id", existing.id);
+    return false;
+  }
+
+  await supabase.from("saved_posts").insert({
+    user_id: userId,
+    report_id: reportId,
+  });
+
+  return true;
+}
+
 app.post(`${PREFIX}/saved-posts/toggle`, async (c: any) => {
   try {
     const user = await getUserFromRequest(c);
@@ -1272,27 +1236,13 @@ app.post(`${PREFIX}/saved-posts/toggle`, async (c: any) => {
 
     const { report_id } = await c.req.json();
 
-    const { data: existing } = await supabase
-      .from("saved_posts")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("report_id", report_id)
-      .maybeSingle();
-
-    if (existing) {
-      await supabase
-        .from("saved_posts")
-        .delete()
-        .eq("id", existing.id);
-      return c.json({ saved: false });
+    if (!report_id) {
+      return c.json({ error: "report_id is required" }, 400);
     }
 
-    await supabase.from("saved_posts").insert({
-      user_id: user.id,
-      report_id,
-    });
+    const saved = await toggleSavedPost(user.id, report_id);
 
-    return c.json({ saved: true });
+    return c.json({ saved });
   } catch (err: any) {
     console.log("POST saved-posts/toggle error:", err);
 
@@ -1303,7 +1253,36 @@ app.post(`${PREFIX}/saved-posts/toggle`, async (c: any) => {
   }
 });
 
-// ─── PROFILE ─────────────────────────────────────────────────────────────────
+app.post(`${PREFIX}/saved-posts`, async (c: any) => {
+  try {
+    const user = await getUserFromRequest(c);
+
+    if (!user) {
+      return c.json({ error: "Authentication required" }, 401);
+    }
+
+    const { report_id } = await c.req.json();
+
+    if (!report_id) {
+      return c.json({ error: "report_id is required" }, 400);
+    }
+
+    const saved = await toggleSavedPost(user.id, report_id);
+
+    return c.json({ saved });
+  } catch (err: any) {
+    console.log("POST saved-posts error:", err);
+
+    return c.json(
+      { error: err.message || "Failed to save post" },
+      500,
+    );
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PROFILE
+// ─────────────────────────────────────────────────────────────────────────────
 
 app.get(`${PREFIX}/profile`, async (c: any) => {
   try {
@@ -1353,15 +1332,10 @@ app.patch(`${PREFIX}/profile`, async (c: any) => {
     if (body.email !== undefined)
       allowedPayload.email = body.email;
 
-    if (body.username !== undefined) {
-      allowedPayload.username = String(body.username || "")
-        .trim()
-        .toLowerCase();
-    }
-
     const { data, error } = await supabase
       .from("profiles")
-      .upsert(allowedPayload, { onConflict: "id" })
+      .update(allowedPayload)
+      .eq("id", user.id)
       .select("*")
       .single();
 
@@ -1381,7 +1355,9 @@ app.patch(`${PREFIX}/profile`, async (c: any) => {
   }
 });
 
-// ─── USER DASHBOARD ──────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// USER DASHBOARD
+// ─────────────────────────────────────────────────────────────────────────────
 
 app.get(`${PREFIX}/my-reports`, async (c: any) => {
   try {
@@ -1507,14 +1483,16 @@ app.get(`${PREFIX}/my-stats`, async (c: any) => {
   }
 });
 
-// ─── NOTIFICATIONS ───────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// NOTIFICATIONS
+// ─────────────────────────────────────────────────────────────────────────────
 
 app.get(`${PREFIX}/notifications`, async (c: any) => {
   try {
     const user = await getUserFromRequest(c);
 
     if (!user) {
-      return c.json({ error: "Authentication required" }, 401);
+      return c.json({ data: [] });
     }
 
     const { data, error } = await supabase
@@ -1539,10 +1517,7 @@ app.get(`${PREFIX}/notifications`, async (c: any) => {
   } catch (err: any) {
     console.log("GET notifications server error:", err);
 
-    return c.json(
-      { error: err.message || "Failed to load notifications" },
-      500,
-    );
+    return c.json({ data: [] });
   }
 });
 
@@ -1573,7 +1548,9 @@ app.patch(`${PREFIX}/notifications/read`, async (c: any) => {
   }
 });
 
-// ─── ADMIN ───────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// ADMIN
+// ─────────────────────────────────────────────────────────────────────────────
 
 app.get(`${PREFIX}/admin/stats`, async (c: any) => {
   try {
@@ -1823,7 +1800,9 @@ app.get(`${PREFIX}/admin/activity`, async (c: any) => {
   }
 });
 
-// ─── FLAGS ───────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// FLAGS
+// ─────────────────────────────────────────────────────────────────────────────
 
 app.post(`${PREFIX}/flags`, async (c: any) => {
   try {
@@ -1834,6 +1813,10 @@ app.post(`${PREFIX}/flags`, async (c: any) => {
     }
 
     const { report_id, reason } = await c.req.json();
+
+    if (!report_id) {
+      return c.json({ error: "report_id is required" }, 400);
+    }
 
     const { data, error } = await supabase
       .from("flags")
@@ -1869,7 +1852,9 @@ app.post(`${PREFIX}/flags`, async (c: any) => {
   }
 });
 
-// ─── UPLOAD ──────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// UPLOAD
+// ─────────────────────────────────────────────────────────────────────────────
 
 app.post(`${PREFIX}/upload`, async (c: any) => {
   try {
@@ -1919,7 +1904,9 @@ app.post(`${PREFIX}/upload`, async (c: any) => {
   }
 });
 
-// ─── MAP PINS ────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// MAP PINS
+// ─────────────────────────────────────────────────────────────────────────────
 
 app.get(`${PREFIX}/map-pins`, async (c: any) => {
   try {
@@ -1992,7 +1979,6 @@ app.get(`${PREFIX}/map-pins`, async (c: any) => {
     const pins = (data || []).map((pin: any) => ({
       ...pin,
       display_status: getDisplayStatus(pin),
-
       pet_type: pin.animal_type,
       location: pin.location_name,
       lat: pin.latitude,

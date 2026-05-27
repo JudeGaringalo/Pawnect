@@ -20,7 +20,7 @@ export const supabase: SupabaseClient = createClient(
 
 export interface Profile {
   id: string;
-  username?: string | null;
+  username: string | null;
   full_name: string | null;
   email: string | null;
   avatar_url: string | null;
@@ -156,7 +156,7 @@ export function AuthProvider({
         };
       }
 
-      const token = json.data.token;
+      const token = json.data.token as string;
       const profileData = json.data.profile as Profile;
 
       localStorage.setItem("pawnect_mock_token", token);
@@ -185,8 +185,12 @@ export function AuthProvider({
   };
 
   const getAuthHeader = (): Record<string, string> => {
+    const storedToken = localStorage.getItem(
+      "pawnect_mock_token",
+    );
+
     return {
-      Authorization: `Bearer ${mockToken || publicAnonKey}`,
+      Authorization: `Bearer ${mockToken || storedToken || publicAnonKey}`,
     };
   };
 
