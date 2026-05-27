@@ -36,7 +36,14 @@ interface AuthContextType {
   session: Session | null;
   profile: Profile | null;
   loading: boolean;
-  signInWithGoogle: () => Promise<void>;
+  signInWithEmail: (
+    email: string,
+    password: string,
+  ) => Promise<{ error?: string }>;
+  signUpWithEmail: (
+    email: string,
+    password: string,
+  ) => Promise<{ error?: string }>;
   signOut: () => Promise<void>;
   getAuthHeader: () => Record<string, string>;
   refreshProfile: () => Promise<void>;
@@ -48,7 +55,8 @@ const AuthContext = createContext<AuthContextType>({
   session: null,
   profile: null,
   loading: true,
-  signInWithGoogle: async () => {},
+  signInWithEmail: async () => ({}),
+  signUpWithEmail: async () => ({}),
   signOut: async () => {},
   getAuthHeader: () => ({
     Authorization: `Bearer ${publicAnonKey}`,
@@ -115,13 +123,30 @@ export function AuthProvider({
     return () => subscription.unsubscribe();
   }, []);
 
-  const signInWithGoogle = async () => {
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/feed`,
-      },
+  const signInWithEmail = async (email: string, password: string) => {
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
     });
+
+    if (error) {
+      return { error: error.message };
+    }
+
+    return {};
+  };
+
+  const signUpWithEmail = async (email: string, password: string) => {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+
+    if (error) {
+      return { error: error.message };
+    }
+
+    return {};
   };
 
   const signOut = async () => {
@@ -152,7 +177,8 @@ export function AuthProvider({
         session,
         profile,
         loading,
-        signInWithGoogle,
+        signInWithEmail,
+        signUpWithEmail,
         signOut,
         getAuthHeader,
         refreshProfile,

@@ -99,6 +99,8 @@ function mapReportForFrontend(
   userReactionIds = new Set<string>(),
   userSavedIds = new Set<string>(),
 ) {
+  const visibleStatus = getDisplayStatus(report);
+
   const reactionCount = Array.isArray(report.reactions)
     ? report.reactions.length
     : (report.reaction_count ?? 0);
@@ -112,6 +114,12 @@ function mapReportForFrontend(
 
     profiles: mapProfile(report.profiles),
 
+    db_status: report.status,
+    case_status: report.status,
+
+    // Compatibility for old frontend screens that expect status = lost/found/reunited.
+    status: visibleStatus,
+
     report_type: report.report_type,
     animal_type: report.animal_type,
     location_name: report.location_name,
@@ -119,13 +127,13 @@ function mapReportForFrontend(
     longitude: report.longitude,
     image_url: report.image_url,
 
-    display_status: getDisplayStatus(report),
+    display_status: visibleStatus,
     reaction_count: reactionCount,
     comment_count: commentCount,
     user_reacted: userReactionIds.has(report.id),
     user_saved: userSavedIds.has(report.id),
 
-    // Compatibility aliases for old Figma Make components.
+    // Compatibility aliases for old Figma Make code.
     pet_type: report.animal_type,
     location: report.location_name,
     lat: report.latitude,
@@ -136,11 +144,38 @@ function mapReportForFrontend(
 
 function getToken(c: any): string | null {
   const auth = c.req.header("Authorization") ?? "";
-  return auth.startsWith("Bearer ") ? auth.slice(7) : null;
+  return auth.startsWith("Bearer ")
+    ? auth.slice(7).trim()
+    : null;
 }
 
 async function getUser(token: string | null) {
   if (!token) return null;
+
+  if (token.startsWith("mock:")) {
+    const profileId = token.replace("mock:", "");
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", profileId)
+      .maybeSingle();
+
+    if (!profile) return null;
+
+    return {
+      id: profile.id,
+      email: profile.email,
+      user_metadata: {
+        full_name:
+          profile.full_name ||
+          profile.username ||
+          "Pawnect User",
+        avatar_url: profile.avatar_url,
+      },
+      app_metadata: {},
+    };
+  }
 
   const {
     data: { user },
@@ -183,7 +218,7 @@ async function ensureProfile(user: any) {
     email: user.email ?? null,
     avatar_url: avatarUrl,
     role: "user",
-    location: null,
+    location: "Philippines",
   };
 
   const { data: newProfile, error } = await supabase
@@ -236,7 +271,6 @@ async function logActivity({
   }
 }
 
-// Initialize storage bucket.
 (async () => {
   const bucketName = "pet-photos";
 
@@ -250,13 +284,97 @@ async function logActivity({
     await supabase.storage.createBucket(bucketName, {
       public: true,
     });
+
     console.log(`Created bucket: ${bucketName}`);
   }
 })();
 
-// ─── HEALTH ───────────────────────────────────────────────────────────────────
+// ─── HEALTH ──────────────────────────────────────────────────────────────────
 
 app.get(`${PREFIX}/health`, (c) => c.json({ status: "ok" }));
+
+// ─── MOCK LOGIN ──────────────────────────────────────────────────────────────
+
+app.post(`${PREFIX}/mock-login`, async (c: any) => {
+  try {
+    const body = await c.req.json();
+
+    const username = String(body.username || "")
+      .trim()
+      .toLowerCase();
+    const password = String(body.password || "").trim();
+
+    if (!username || !password) {
+      return c.json(
+        { error: "Username and password are required" },
+        400,
+      );
+    }
+
+    const { data: existingProfile, error: lookupError } =
+      await supabase
+        .from("profiles")
+        .select("id, username")
+        .eq("username", username)
+        .maybeSingle();
+
+    if (lookupError) {
+      console.log("Mock username lookup error:", lookupError);
+      return c.json({ error: lookupError.message }, 500);
+    }
+
+    if (existingProfile) {
+      return c.json(
+        {
+          error:
+            "This username has already been used. Please choose another username.",
+        },
+        409,
+      );
+    }
+
+    const { data: createdProfile, error: createError } =
+      await supabase
+        .from("profiles")
+        .insert({
+          username,
+          mock_password: password,
+          full_name: username,
+          email: null,
+          avatar_url: null,
+          role: "user",
+          location: "Philippines",
+        })
+        .select("*")
+        .single();
+
+    if (createError) {
+      console.log("Mock profile create error:", createError);
+      return c.json({ error: createError.message }, 500);
+    }
+
+    await logActivity({
+      user_id: createdProfile.id,
+      action: "created_mock_profile",
+      target_type: "profile",
+      target_id: createdProfile.id,
+    });
+
+    return c.json({
+      data: {
+        profile: mapProfile(createdProfile),
+        token: `mock:${createdProfile.id}`,
+      },
+    });
+  } catch (err: any) {
+    console.log("POST mock-login error:", err);
+
+    return c.json(
+      { error: err.message || "Mock login failed" },
+      500,
+    );
+  }
+});
 
 // ─── REPORTS ─────────────────────────────────────────────────────────────────
 
@@ -302,6 +420,7 @@ app.get(`${PREFIX}/reports`, async (c: any) => {
         created_at,
         profiles (
           id,
+          username,
           full_name,
           email,
           avatar_url,
@@ -413,6 +532,7 @@ app.get(`${PREFIX}/reports`, async (c: any) => {
     return c.json({ data: mappedData });
   } catch (err: any) {
     console.log("GET /reports server error:", err);
+
     return c.json(
       { error: err.message || "Failed to load reports" },
       500,
@@ -461,14 +581,6 @@ app.post(`${PREFIX}/reports`, async (c: any) => {
         body.date_reported || new Date().toISOString(),
     };
 
-    if (!reportPayload.report_type) {
-      return c.json({ error: "Report type is required" }, 400);
-    }
-
-    if (!reportPayload.animal_type) {
-      return c.json({ error: "Animal type is required" }, 400);
-    }
-
     if (!reportPayload.location_name) {
       return c.json({ error: "Location is required" }, 400);
     }
@@ -498,6 +610,7 @@ app.post(`${PREFIX}/reports`, async (c: any) => {
         created_at,
         profiles (
           id,
+          username,
           full_name,
           email,
           avatar_url,
@@ -530,6 +643,7 @@ app.post(`${PREFIX}/reports`, async (c: any) => {
     return c.json({ data: mapReportForFrontend(data) }, 201);
   } catch (err: any) {
     console.log("POST /reports server error:", err);
+
     return c.json(
       { error: err.message || "Failed to create report" },
       500,
@@ -566,6 +680,7 @@ app.get(`${PREFIX}/reports/:id`, async (c: any) => {
         created_at,
         profiles (
           id,
+          username,
           full_name,
           email,
           avatar_url,
@@ -623,6 +738,7 @@ app.get(`${PREFIX}/reports/:id`, async (c: any) => {
     });
   } catch (err: any) {
     console.log("GET /reports/:id server error:", err);
+
     return c.json(
       { error: err.message || "Failed to load report" },
       500,
@@ -667,9 +783,8 @@ app.patch(`${PREFIX}/reports/:id`, async (c: any) => {
 
     const updatePayload: Record<string, any> = {};
 
-    if (body.status) {
+    if (body.status)
       updatePayload.status = normalizeReportStatus(body.status);
-    }
 
     if (body.report_type) {
       updatePayload.report_type = normalizeReportType(
@@ -677,9 +792,8 @@ app.patch(`${PREFIX}/reports/:id`, async (c: any) => {
       );
     }
 
-    if (body.pet_name !== undefined) {
+    if (body.pet_name !== undefined)
       updatePayload.pet_name = body.pet_name || null;
-    }
 
     if (
       body.animal_type !== undefined ||
@@ -698,10 +812,8 @@ app.patch(`${PREFIX}/reports/:id`, async (c: any) => {
       updatePayload.size = body.size || null;
     if (body.gender !== undefined)
       updatePayload.gender = body.gender || null;
-
-    if (body.description !== undefined) {
+    if (body.description !== undefined)
       updatePayload.description = body.description || null;
-    }
 
     if (
       body.location_name !== undefined ||
@@ -765,6 +877,7 @@ app.patch(`${PREFIX}/reports/:id`, async (c: any) => {
         created_at,
         profiles (
           id,
+          username,
           full_name,
           email,
           avatar_url,
@@ -800,6 +913,7 @@ app.patch(`${PREFIX}/reports/:id`, async (c: any) => {
     return c.json({ data: mapReportForFrontend(data) });
   } catch (err: any) {
     console.log("PATCH /reports/:id server error:", err);
+
     return c.json(
       { error: err.message || "Failed to update report" },
       500,
@@ -824,6 +938,7 @@ app.get(`${PREFIX}/reports/:id/comments`, async (c: any) => {
         created_at,
         profiles (
           id,
+          username,
           full_name,
           email,
           avatar_url,
@@ -844,6 +959,7 @@ app.get(`${PREFIX}/reports/:id/comments`, async (c: any) => {
     return c.json({ data: (data || []).map(mapComment) });
   } catch (err: any) {
     console.log("GET comments server error:", err);
+
     return c.json(
       { error: err.message || "Failed to load comments" },
       500,
@@ -885,6 +1001,7 @@ app.post(`${PREFIX}/reports/:id/comments`, async (c: any) => {
         created_at,
         profiles (
           id,
+          username,
           full_name,
           email,
           avatar_url,
@@ -914,7 +1031,7 @@ app.post(`${PREFIX}/reports/:id/comments`, async (c: any) => {
       .eq("id", reportId)
       .maybeSingle();
 
-    if (report && report.user_id !== user.id) {
+    if (report?.user_id && report.user_id !== user.id) {
       const profile = await ensureProfile(user);
 
       await supabase.from("notifications").insert({
@@ -931,6 +1048,7 @@ app.post(`${PREFIX}/reports/:id/comments`, async (c: any) => {
     return c.json({ data: mapComment(data) }, 201);
   } catch (err: any) {
     console.log("POST comments server error:", err);
+
     return c.json(
       { error: err.message || "Failed to post comment" },
       500,
@@ -985,6 +1103,7 @@ app.post(`${PREFIX}/reactions/toggle`, async (c: any) => {
     });
   } catch (err: any) {
     console.log("POST reactions/toggle error:", err);
+
     return c.json(
       { error: err.message || "Failed to toggle reaction" },
       500,
@@ -1021,6 +1140,7 @@ app.get(`${PREFIX}/reactions/:reportId`, async (c: any) => {
     });
   } catch (err: any) {
     console.log("GET reactions error:", err);
+
     return c.json(
       { error: err.message || "Failed to load reactions" },
       500,
@@ -1067,6 +1187,7 @@ app.get(`${PREFIX}/saved-posts`, async (c: any) => {
           created_at,
           profiles (
             id,
+            username,
             full_name,
             email,
             avatar_url,
@@ -1095,6 +1216,7 @@ app.get(`${PREFIX}/saved-posts`, async (c: any) => {
     return c.json({ data: mapped });
   } catch (err: any) {
     console.log("GET saved-posts server error:", err);
+
     return c.json(
       { error: err.message || "Failed to load saved posts" },
       500,
@@ -1135,6 +1257,7 @@ app.post(`${PREFIX}/saved-posts/toggle`, async (c: any) => {
     return c.json({ saved: true });
   } catch (err: any) {
     console.log("POST saved-posts/toggle error:", err);
+
     return c.json(
       { error: err.message || "Failed to toggle saved post" },
       500,
@@ -1161,6 +1284,7 @@ app.get(`${PREFIX}/profile`, async (c: any) => {
     return c.json({ data: profile });
   } catch (err: any) {
     console.log("GET profile error:", err);
+
     return c.json(
       { error: err.message || "Failed to load profile" },
       500,
@@ -1191,6 +1315,12 @@ app.patch(`${PREFIX}/profile`, async (c: any) => {
     if (body.email !== undefined)
       allowedPayload.email = body.email;
 
+    if (body.username !== undefined) {
+      allowedPayload.username = String(body.username || "")
+        .trim()
+        .toLowerCase();
+    }
+
     const { data, error } = await supabase
       .from("profiles")
       .upsert(allowedPayload, { onConflict: "id" })
@@ -1205,6 +1335,7 @@ app.patch(`${PREFIX}/profile`, async (c: any) => {
     return c.json({ data: mapProfile(data) });
   } catch (err: any) {
     console.log("PATCH profile server error:", err);
+
     return c.json(
       { error: err.message || "Failed to update profile" },
       500,
@@ -1246,6 +1377,7 @@ app.get(`${PREFIX}/my-reports`, async (c: any) => {
         created_at,
         profiles (
           id,
+          username,
           full_name,
           email,
           avatar_url,
@@ -1277,6 +1409,7 @@ app.get(`${PREFIX}/my-reports`, async (c: any) => {
     });
   } catch (err: any) {
     console.log("GET my-reports server error:", err);
+
     return c.json(
       { error: err.message || "Failed to load my reports" },
       500,
@@ -1328,6 +1461,7 @@ app.get(`${PREFIX}/my-stats`, async (c: any) => {
     });
   } catch (err: any) {
     console.log("GET my-stats server error:", err);
+
     return c.json(
       { error: err.message || "Failed to load stats" },
       500,
@@ -1366,6 +1500,7 @@ app.get(`${PREFIX}/notifications`, async (c: any) => {
     return c.json({ data: mapped });
   } catch (err: any) {
     console.log("GET notifications server error:", err);
+
     return c.json(
       { error: err.message || "Failed to load notifications" },
       500,
@@ -1390,6 +1525,7 @@ app.patch(`${PREFIX}/notifications/read`, async (c: any) => {
     return c.json({ success: true });
   } catch (err: any) {
     console.log("PATCH notifications/read error:", err);
+
     return c.json(
       {
         error: err.message || "Failed to update notifications",
@@ -1450,6 +1586,7 @@ app.get(`${PREFIX}/admin/stats`, async (c: any) => {
     });
   } catch (err: any) {
     console.log("GET admin/stats error:", err);
+
     return c.json(
       { error: err.message || "Failed to load admin stats" },
       500,
@@ -1484,6 +1621,7 @@ app.get(`${PREFIX}/admin/flags`, async (c: any) => {
         ),
         profiles (
           id,
+          username,
           full_name,
           avatar_url,
           role
@@ -1512,6 +1650,7 @@ app.get(`${PREFIX}/admin/flags`, async (c: any) => {
     return c.json({ data: mapped });
   } catch (err: any) {
     console.log("GET admin/flags server error:", err);
+
     return c.json(
       { error: err.message || "Failed to load flags" },
       500,
@@ -1586,6 +1725,7 @@ app.patch(`${PREFIX}/admin/flags/:id`, async (c: any) => {
     return c.json({ data });
   } catch (err: any) {
     console.log("PATCH admin/flags server error:", err);
+
     return c.json(
       { error: err.message || "Failed to update flag" },
       500,
@@ -1613,6 +1753,7 @@ app.get(`${PREFIX}/admin/activity`, async (c: any) => {
         created_at,
         profiles (
           id,
+          username,
           full_name,
           avatar_url,
           role
@@ -1636,6 +1777,7 @@ app.get(`${PREFIX}/admin/activity`, async (c: any) => {
     return c.json({ data: mapped });
   } catch (err: any) {
     console.log("GET admin/activity server error:", err);
+
     return c.json(
       { error: err.message || "Failed to load activity" },
       500,
@@ -1681,6 +1823,7 @@ app.post(`${PREFIX}/flags`, async (c: any) => {
     return c.json({ data }, 201);
   } catch (err: any) {
     console.log("POST flags server error:", err);
+
     return c.json(
       { error: err.message || "Failed to flag report" },
       500,
@@ -1730,6 +1873,7 @@ app.post(`${PREFIX}/upload`, async (c: any) => {
     return c.json({ url: publicUrl }, 201);
   } catch (err: any) {
     console.log("POST upload server error:", err);
+
     return c.json(
       { error: err.message || "Failed to upload file" },
       500,
@@ -1811,7 +1955,6 @@ app.get(`${PREFIX}/map-pins`, async (c: any) => {
       ...pin,
       display_status: getDisplayStatus(pin),
 
-      // Compatibility aliases for old Figma Make components.
       pet_type: pin.animal_type,
       location: pin.location_name,
       lat: pin.latitude,
@@ -1822,6 +1965,7 @@ app.get(`${PREFIX}/map-pins`, async (c: any) => {
     return c.json({ data: pins });
   } catch (err: any) {
     console.log("GET map-pins server error:", err);
+
     return c.json(
       { error: err.message || "Failed to load map pins" },
       500,
