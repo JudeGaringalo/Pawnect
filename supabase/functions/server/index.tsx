@@ -43,6 +43,21 @@ const VALID_REPORT_STATUSES = [
 ];
 const VALID_ANIMAL_TYPES = ["dog", "cat", "other"];
 
+function registerGet(path: string, handler: any) {
+  app.get(`${PREFIX}${path}`, handler);
+  app.get(path, handler);
+}
+
+function registerPost(path: string, handler: any) {
+  app.post(`${PREFIX}${path}`, handler);
+  app.post(path, handler);
+}
+
+function registerPatch(path: string, handler: any) {
+  app.patch(`${PREFIX}${path}`, handler);
+  app.patch(path, handler);
+}
+
 function normalizeReportType(value: unknown) {
   const v = String(value || "").toLowerCase();
   if (VALID_REPORT_TYPES.includes(v)) return v;
@@ -118,7 +133,6 @@ function mapReportForFrontend(
     db_status: report.status,
     case_status: report.status,
 
-    // Frontend compatibility
     status: visibleStatus,
     display_status: visibleStatus,
 
@@ -134,12 +148,12 @@ function mapReportForFrontend(
     user_reacted: userReactionIds.has(report.id),
     user_saved: userSavedIds.has(report.id),
 
-    // Old Figma-generated field names
     pet_type: report.animal_type,
     location: report.location_name,
     lat: report.latitude,
     lng: report.longitude,
     photo_url: report.image_url,
+
     incident_date: report.date_reported,
     incident_time: null,
     reunited_at:
@@ -162,8 +176,9 @@ function getToken(c: any): string | null {
 async function getUser(token: string | null) {
   if (!token) return null;
 
-  // Only mock tokens are accepted. No Google. No Supabase Auth.
-  if (!token.startsWith("mock:")) return null;
+  if (!token.startsWith("mock:")) {
+    return null;
+  }
 
   const profileId = token.replace("mock:", "");
 
@@ -248,7 +263,7 @@ async function ensureStorageBucket() {
     const { data: buckets } =
       await supabase.storage.listBuckets();
     const bucketExists = buckets?.some(
-      (b: any) => b.name === bucketName,
+      (bucket: any) => bucket.name === bucketName,
     );
 
     if (!bucketExists) {
@@ -265,22 +280,20 @@ async function ensureStorageBucket() {
 
 ensureStorageBucket();
 
-// ─────────────────────────────────────────────────────────────────────────────
-// HEALTH
-// ─────────────────────────────────────────────────────────────────────────────
-
-app.get(`${PREFIX}/health`, (c) => {
+registerGet("/health", (c: any) => {
   return c.json({ status: "ok" });
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// MOCK LOGIN
-// Uses SQL function: mock_login_or_create(input_username, raw_password)
-// Existing username = let them in.
-// New username = create profile + hashed credential.
-// ─────────────────────────────────────────────────────────────────────────────
+registerGet("/debug-version", (c: any) => {
+  return c.json({
+    version: "NUKED_SERVER_V2_PUBLIC_REPORTS",
+    reports_should_be_public: true,
+    mock_login_only: true,
+    timestamp: new Date().toISOString(),
+  });
+});
 
-app.post(`${PREFIX}/mock-login`, async (c: any) => {
+registerPost("/mock-login", async (c: any) => {
   try {
     const body = await c.req.json();
 
@@ -341,11 +354,7 @@ app.post(`${PREFIX}/mock-login`, async (c: any) => {
   }
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// REPORTS
-// ─────────────────────────────────────────────────────────────────────────────
-
-app.get(`${PREFIX}/reports`, async (c: any) => {
+registerGet("/reports", async (c: any) => {
   try {
     const user = await getUserFromRequest(c);
 
@@ -507,7 +516,7 @@ app.get(`${PREFIX}/reports`, async (c: any) => {
   }
 });
 
-app.post(`${PREFIX}/reports`, async (c: any) => {
+registerPost("/reports", async (c: any) => {
   try {
     const user = await getUserFromRequest(c);
 
@@ -616,7 +625,7 @@ app.post(`${PREFIX}/reports`, async (c: any) => {
   }
 });
 
-app.get(`${PREFIX}/reports/:id`, async (c: any) => {
+registerGet("/reports/:id", async (c: any) => {
   try {
     const user = await getUserFromRequest(c);
     const id = c.req.param("id");
@@ -711,7 +720,7 @@ app.get(`${PREFIX}/reports/:id`, async (c: any) => {
   }
 });
 
-app.patch(`${PREFIX}/reports/:id`, async (c: any) => {
+registerPatch("/reports/:id", async (c: any) => {
   try {
     const user = await getUserFromRequest(c);
 
@@ -778,6 +787,7 @@ app.patch(`${PREFIX}/reports/:id`, async (c: any) => {
       updatePayload.size = body.size || null;
     if (body.gender !== undefined)
       updatePayload.gender = body.gender || null;
+
     if (body.description !== undefined) {
       updatePayload.description = body.description || null;
     }
@@ -888,11 +898,7 @@ app.patch(`${PREFIX}/reports/:id`, async (c: any) => {
   }
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// COMMENTS
-// ─────────────────────────────────────────────────────────────────────────────
-
-app.get(`${PREFIX}/reports/:id/comments`, async (c: any) => {
+registerGet("/reports/:id/comments", async (c: any) => {
   try {
     const reportId = c.req.param("id");
 
@@ -936,7 +942,7 @@ app.get(`${PREFIX}/reports/:id/comments`, async (c: any) => {
   }
 });
 
-app.post(`${PREFIX}/reports/:id/comments`, async (c: any) => {
+registerPost("/reports/:id/comments", async (c: any) => {
   try {
     const user = await getUserFromRequest(c);
 
@@ -1023,11 +1029,7 @@ app.post(`${PREFIX}/reports/:id/comments`, async (c: any) => {
   }
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// REACTIONS
-// ─────────────────────────────────────────────────────────────────────────────
-
-app.post(`${PREFIX}/reactions/toggle`, async (c: any) => {
+registerPost("/reactions/toggle", async (c: any) => {
   try {
     const user = await getUserFromRequest(c);
 
@@ -1084,7 +1086,7 @@ app.post(`${PREFIX}/reactions/toggle`, async (c: any) => {
   }
 });
 
-app.get(`${PREFIX}/reactions/:reportId`, async (c: any) => {
+registerGet("/reactions/:reportId", async (c: any) => {
   try {
     const reportId = c.req.param("reportId");
     const user = await getUserFromRequest(c);
@@ -1121,11 +1123,7 @@ app.get(`${PREFIX}/reactions/:reportId`, async (c: any) => {
   }
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// SAVED POSTS
-// ─────────────────────────────────────────────────────────────────────────────
-
-app.get(`${PREFIX}/saved-posts`, async (c: any) => {
+registerGet("/saved-posts", async (c: any) => {
   try {
     const user = await getUserFromRequest(c);
 
@@ -1226,7 +1224,7 @@ async function toggleSavedPost(
   return true;
 }
 
-app.post(`${PREFIX}/saved-posts/toggle`, async (c: any) => {
+registerPost("/saved-posts/toggle", async (c: any) => {
   try {
     const user = await getUserFromRequest(c);
 
@@ -1253,7 +1251,7 @@ app.post(`${PREFIX}/saved-posts/toggle`, async (c: any) => {
   }
 });
 
-app.post(`${PREFIX}/saved-posts`, async (c: any) => {
+registerPost("/saved-posts", async (c: any) => {
   try {
     const user = await getUserFromRequest(c);
 
@@ -1280,11 +1278,7 @@ app.post(`${PREFIX}/saved-posts`, async (c: any) => {
   }
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// PROFILE
-// ─────────────────────────────────────────────────────────────────────────────
-
-app.get(`${PREFIX}/profile`, async (c: any) => {
+registerGet("/profile", async (c: any) => {
   try {
     const user = await getUserFromRequest(c);
 
@@ -1309,7 +1303,7 @@ app.get(`${PREFIX}/profile`, async (c: any) => {
   }
 });
 
-app.patch(`${PREFIX}/profile`, async (c: any) => {
+registerPatch("/profile", async (c: any) => {
   try {
     const user = await getUserFromRequest(c);
 
@@ -1319,9 +1313,7 @@ app.patch(`${PREFIX}/profile`, async (c: any) => {
 
     const body = await c.req.json();
 
-    const allowedPayload: Record<string, any> = {
-      id: user.id,
-    };
+    const allowedPayload: Record<string, any> = {};
 
     if (body.full_name !== undefined)
       allowedPayload.full_name = body.full_name;
@@ -1355,11 +1347,7 @@ app.patch(`${PREFIX}/profile`, async (c: any) => {
   }
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// USER DASHBOARD
-// ─────────────────────────────────────────────────────────────────────────────
-
-app.get(`${PREFIX}/my-reports`, async (c: any) => {
+registerGet("/my-reports", async (c: any) => {
   try {
     const user = await getUserFromRequest(c);
 
@@ -1431,7 +1419,7 @@ app.get(`${PREFIX}/my-reports`, async (c: any) => {
   }
 });
 
-app.get(`${PREFIX}/my-stats`, async (c: any) => {
+registerGet("/my-stats", async (c: any) => {
   try {
     const user = await getUserFromRequest(c);
 
@@ -1483,11 +1471,7 @@ app.get(`${PREFIX}/my-stats`, async (c: any) => {
   }
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// NOTIFICATIONS
-// ─────────────────────────────────────────────────────────────────────────────
-
-app.get(`${PREFIX}/notifications`, async (c: any) => {
+registerGet("/notifications", async (c: any) => {
   try {
     const user = await getUserFromRequest(c);
 
@@ -1521,7 +1505,7 @@ app.get(`${PREFIX}/notifications`, async (c: any) => {
   }
 });
 
-app.patch(`${PREFIX}/notifications/read`, async (c: any) => {
+registerPatch("/notifications/read", async (c: any) => {
   try {
     const user = await getUserFromRequest(c);
 
@@ -1548,11 +1532,7 @@ app.patch(`${PREFIX}/notifications/read`, async (c: any) => {
   }
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// ADMIN
-// ─────────────────────────────────────────────────────────────────────────────
-
-app.get(`${PREFIX}/admin/stats`, async (c: any) => {
+registerGet("/admin/stats", async (c: any) => {
   try {
     const token = getToken(c);
 
@@ -1609,7 +1589,7 @@ app.get(`${PREFIX}/admin/stats`, async (c: any) => {
   }
 });
 
-app.get(`${PREFIX}/admin/flags`, async (c: any) => {
+registerGet("/admin/flags", async (c: any) => {
   try {
     const token = getToken(c);
 
@@ -1673,7 +1653,7 @@ app.get(`${PREFIX}/admin/flags`, async (c: any) => {
   }
 });
 
-app.patch(`${PREFIX}/admin/flags/:id`, async (c: any) => {
+registerPatch("/admin/flags/:id", async (c: any) => {
   try {
     const token = getToken(c);
     const user = await getUser(token);
@@ -1748,7 +1728,7 @@ app.patch(`${PREFIX}/admin/flags/:id`, async (c: any) => {
   }
 });
 
-app.get(`${PREFIX}/admin/activity`, async (c: any) => {
+registerGet("/admin/activity", async (c: any) => {
   try {
     const token = getToken(c);
 
@@ -1800,11 +1780,7 @@ app.get(`${PREFIX}/admin/activity`, async (c: any) => {
   }
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// FLAGS
-// ─────────────────────────────────────────────────────────────────────────────
-
-app.post(`${PREFIX}/flags`, async (c: any) => {
+registerPost("/flags", async (c: any) => {
   try {
     const user = await getUserFromRequest(c);
 
@@ -1852,11 +1828,7 @@ app.post(`${PREFIX}/flags`, async (c: any) => {
   }
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// UPLOAD
-// ─────────────────────────────────────────────────────────────────────────────
-
-app.post(`${PREFIX}/upload`, async (c: any) => {
+registerPost("/upload", async (c: any) => {
   try {
     const user = await getUserFromRequest(c);
 
@@ -1904,11 +1876,7 @@ app.post(`${PREFIX}/upload`, async (c: any) => {
   }
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// MAP PINS
-// ─────────────────────────────────────────────────────────────────────────────
-
-app.get(`${PREFIX}/map-pins`, async (c: any) => {
+registerGet("/map-pins", async (c: any) => {
   try {
     const search = c.req.query("search") || "";
     const status = c.req.query("status") || "";
