@@ -737,10 +737,6 @@ registerPatch("/reports/:id", async (c: any) => {
   try {
     const user = await getUserFromRequest(c);
 
-    if (!user) {
-      return c.json({ error: "Authentication required" }, 401);
-    }
-
     const id = c.req.param("id");
     const body = await c.req.json();
 
