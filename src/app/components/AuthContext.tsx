@@ -188,9 +188,11 @@ export function AuthProvider({
     const storedToken = localStorage.getItem(
       "pawnect_mock_token",
     );
+    const token = mockToken || storedToken;
 
     return {
-      Authorization: `Bearer ${mockToken || storedToken || publicAnonKey}`,
+      Authorization: `Bearer ${publicAnonKey}`,
+      ...(token ? { "X-Mock-Token": token } : {}),
     };
   };
 

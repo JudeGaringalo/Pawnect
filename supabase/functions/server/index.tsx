@@ -19,7 +19,12 @@ app.use(
   "/*",
   cors({
     origin: "*",
-    allowHeaders: ["Content-Type", "Authorization"],
+    allowHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-Mock-Token",
+      "x-mock-token",
+    ],
     allowMethods: [
       "GET",
       "POST",
@@ -60,41 +65,64 @@ function registerPatch(path: string, handler: any) {
 
 function normalizeReportType(value: unknown) {
   const v = String(value || "").toLowerCase();
-  if (VALID_REPORT_TYPES.includes(v)) return v;
+
+  if (VALID_REPORT_TYPES.includes(v)) {
+    return v;
+  }
+
   return "lost";
 }
 
 function normalizeReportStatus(value: unknown) {
   const v = String(value || "").toLowerCase();
-  if (VALID_REPORT_STATUSES.includes(v)) return v;
+
+  if (VALID_REPORT_STATUSES.includes(v)) {
+    return v;
+  }
+
   return "active";
 }
 
 function normalizeAnimalType(value: unknown) {
   const v = String(value || "").toLowerCase();
 
-  if (VALID_ANIMAL_TYPES.includes(v)) return v;
-  if (v.includes("dog")) return "dog";
-  if (v.includes("cat")) return "cat";
+  if (VALID_ANIMAL_TYPES.includes(v)) {
+    return v;
+  }
+
+  if (v.includes("dog")) {
+    return "dog";
+  }
+
+  if (v.includes("cat")) {
+    return "cat";
+  }
 
   return "other";
 }
 
 function safeNumber(value: unknown) {
-  if (value === undefined || value === null || value === "")
+  if (value === undefined || value === null || value === "") {
     return null;
+  }
 
   const n = Number(value);
+
   return Number.isFinite(n) ? n : null;
 }
 
 function getDisplayStatus(report: any) {
-  if (report.status === "reunited") return "reunited";
+  if (report.status === "reunited") {
+    return "reunited";
+  }
+
   return report.report_type;
 }
 
 function mapProfile(profile: any) {
-  if (!profile) return null;
+  if (!profile) {
+    return null;
+  }
 
   return {
     ...profile,
@@ -167,14 +195,21 @@ function mapReportForFrontend(
 }
 
 function getToken(c: any): string | null {
-  const auth = c.req.header("Authorization") ?? "";
-  return auth.startsWith("Bearer ")
-    ? auth.slice(7).trim()
-    : null;
+  const mockToken =
+    c.req.header("X-Mock-Token") ||
+    c.req.header("x-mock-token");
+
+  if (mockToken && mockToken.startsWith("mock:")) {
+    return mockToken.trim();
+  }
+
+  return null;
 }
 
 async function getUser(token: string | null) {
-  if (!token) return null;
+  if (!token) {
+    return null;
+  }
 
   if (!token.startsWith("mock:")) {
     return null;
@@ -188,7 +223,9 @@ async function getUser(token: string | null) {
     .eq("id", profileId)
     .maybeSingle();
 
-  if (error || !profile) return null;
+  if (error || !profile) {
+    return null;
+  }
 
   return {
     id: profile.id,
@@ -207,7 +244,9 @@ async function getUserFromRequest(c: any) {
 }
 
 async function ensureProfile(user: any) {
-  if (!user?.id) return null;
+  if (!user?.id) {
+    return null;
+  }
 
   const { data: existingProfile } = await supabase
     .from("profiles")
@@ -215,14 +254,19 @@ async function ensureProfile(user: any) {
     .eq("id", user.id)
     .maybeSingle();
 
-  if (existingProfile) return mapProfile(existingProfile);
+  if (existingProfile) {
+    return mapProfile(existingProfile);
+  }
 
   return null;
 }
 
 async function isAdmin(token: string | null): Promise<boolean> {
   const user = await getUser(token);
-  if (!user) return false;
+
+  if (!user) {
+    return false;
+  }
 
   const { data } = await supabase
     .from("profiles")
@@ -280,18 +324,33 @@ async function ensureStorageBucket() {
 
 ensureStorageBucket();
 
+/* ============================================================================
+   HEALTH / DEBUG
+============================================================================ */
+
 registerGet("/health", (c: any) => {
   return c.json({ status: "ok" });
 });
 
 registerGet("/debug-version", (c: any) => {
   return c.json({
-    version: "NUKED_SERVER_V2_PUBLIC_REPORTS",
-    reports_should_be_public: true,
-    mock_login_only: true,
+    version: "PAWNECT_SIMPLE_AUTH_V3",
+    reports_should_be_public_inside_function: true,
+    auth_header_should_be_public_anon_key: true,
+    mock_token_header: "X-Mock-Token",
     timestamp: new Date().toISOString(),
   });
 });
+
+/* ============================================================================
+   MOCK LOGIN
+   Simple rule:
+   - username exists = let them in
+   - username does not exist = create profile, then let them in
+   - password is ignored
+   - no Supabase Auth
+   - no mock_credentials
+============================================================================ */
 
 registerPost("/mock-login", async (c: any) => {
   try {
@@ -366,6 +425,10 @@ registerPost("/mock-login", async (c: any) => {
     );
   }
 });
+
+/* ============================================================================
+   REPORTS
+============================================================================ */
 
 registerGet("/reports", async (c: any) => {
   try {
@@ -712,8 +775,13 @@ registerGet("/reports/:id", async (c: any) => {
             .maybeSingle(),
         ]);
 
-      if (reaction) userReactionIds.add(id);
-      if (saved) userSavedIds.add(id);
+      if (reaction) {
+        userReactionIds.add(id);
+      }
+
+      if (saved) {
+        userSavedIds.add(id);
+      }
     }
 
     return c.json({
@@ -736,6 +804,10 @@ registerGet("/reports/:id", async (c: any) => {
 registerPatch("/reports/:id", async (c: any) => {
   try {
     const user = await getUserFromRequest(c);
+
+    if (!user) {
+      return c.json({ error: "Authentication required" }, 401);
+    }
 
     const id = c.req.param("id");
     const body = await c.req.json();
@@ -776,8 +848,9 @@ registerPatch("/reports/:id", async (c: any) => {
       );
     }
 
-    if (body.pet_name !== undefined)
+    if (body.pet_name !== undefined) {
       updatePayload.pet_name = body.pet_name || null;
+    }
 
     if (
       body.animal_type !== undefined ||
@@ -906,6 +979,10 @@ registerPatch("/reports/:id", async (c: any) => {
     );
   }
 });
+
+/* ============================================================================
+   COMMENTS
+============================================================================ */
 
 registerGet("/reports/:id/comments", async (c: any) => {
   try {
@@ -1038,6 +1115,10 @@ registerPost("/reports/:id/comments", async (c: any) => {
   }
 });
 
+/* ============================================================================
+   REACTIONS
+============================================================================ */
+
 registerPost("/reactions/toggle", async (c: any) => {
   try {
     const user = await getUserFromRequest(c);
@@ -1132,6 +1213,37 @@ registerGet("/reactions/:reportId", async (c: any) => {
   }
 });
 
+/* ============================================================================
+   SAVED POSTS
+============================================================================ */
+
+async function toggleSavedPost(
+  userId: string,
+  reportId: string,
+) {
+  const { data: existing } = await supabase
+    .from("saved_posts")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("report_id", reportId)
+    .maybeSingle();
+
+  if (existing) {
+    await supabase
+      .from("saved_posts")
+      .delete()
+      .eq("id", existing.id);
+    return false;
+  }
+
+  await supabase.from("saved_posts").insert({
+    user_id: userId,
+    report_id: reportId,
+  });
+
+  return true;
+}
+
 registerGet("/saved-posts", async (c: any) => {
   try {
     const user = await getUserFromRequest(c);
@@ -1206,33 +1318,6 @@ registerGet("/saved-posts", async (c: any) => {
   }
 });
 
-async function toggleSavedPost(
-  userId: string,
-  reportId: string,
-) {
-  const { data: existing } = await supabase
-    .from("saved_posts")
-    .select("id")
-    .eq("user_id", userId)
-    .eq("report_id", reportId)
-    .maybeSingle();
-
-  if (existing) {
-    await supabase
-      .from("saved_posts")
-      .delete()
-      .eq("id", existing.id);
-    return false;
-  }
-
-  await supabase.from("saved_posts").insert({
-    user_id: userId,
-    report_id: reportId,
-  });
-
-  return true;
-}
-
 registerPost("/saved-posts/toggle", async (c: any) => {
   try {
     const user = await getUserFromRequest(c);
@@ -1286,6 +1371,10 @@ registerPost("/saved-posts", async (c: any) => {
     );
   }
 });
+
+/* ============================================================================
+   PROFILE / DASHBOARD / NOTIFICATIONS
+============================================================================ */
 
 registerGet("/profile", async (c: any) => {
   try {
@@ -1541,6 +1630,10 @@ registerPatch("/notifications/read", async (c: any) => {
   }
 });
 
+/* ============================================================================
+   ADMIN
+============================================================================ */
+
 registerGet("/admin/stats", async (c: any) => {
   try {
     const token = getToken(c);
@@ -1788,6 +1881,10 @@ registerGet("/admin/activity", async (c: any) => {
     );
   }
 });
+
+/* ============================================================================
+   FLAGS / UPLOAD / MAP
+============================================================================ */
 
 registerPost("/flags", async (c: any) => {
   try {
