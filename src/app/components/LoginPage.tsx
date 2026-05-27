@@ -140,13 +140,6 @@ export default function LoginPage() {
               )}
             </button>
           </div>
-
-          <div className="mt-8 pt-6 border-t border-slate-200 text-center">
-            <p className="text-xs text-slate-500">
-              Existing usernames continue the same prototype
-              profile. New usernames create a new profile.
-            </p>
-          </div>
         </div>
 
         <div className="text-center mt-6">
