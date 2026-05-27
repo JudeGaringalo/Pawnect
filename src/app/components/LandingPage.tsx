@@ -3,13 +3,13 @@ import { useNavigate } from "react-router";
 import { motion } from "motion/react";
 
 const logoSrc =
-  "https://raw.githubusercontent.com/JudeGaringalo/Pawnect/refs/heads/main/public/images/logo.png";
+  "blob:https://www.figma.com/137e4b3f-97bc-4267-947d-d33375f88388";
 
 const favicon =
-  "https://raw.githubusercontent.com/JudeGaringalo/Pawnect/refs/heads/main/public/images/favicon.png";
+  "blob:https://www.figma.com/6f072b93-db10-4e04-8f30-108fe91508f1";
 
 const heroImageSrc =
-  "https://raw.githubusercontent.com/JudeGaringalo/Pawnect/refs/heads/main/public/images/header-image.png";
+  "blob:https://www.figma.com/d60b07fe-2f7e-4de8-9a1e-ee010f15c140";
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -129,31 +129,31 @@ export default function LandingPage() {
       name: "Lester Jude Garingalo",
       role: "Full-Stack Developer",
       image:
-        "https://github.com/JudeGaringalo/Pawnect/blob/main/public/images/Jude.webp?raw=true",
+        "blob:https://www.figma.com/320286b3-5af2-4f0f-97d7-4f8a999cea60",
     },
     {
       name: "Andrea Sai Malicdem",
       role: "Documentation",
       image:
-        "https://github.com/JudeGaringalo/Pawnect/blob/main/public/images/Sai.webp?raw=true",
+        "blob:https://www.figma.com/6e2e89ab-952c-49ee-92fa-2b81df5d1190",
     },
     {
       name: "Cornelius James Lasala",
       role: "Documentation",
       image:
-        "https://raw.githubusercontent.com/JudeGaringalo/Pawnect/refs/heads/main/public/images/Bam.webp",
+        "blob:https://www.figma.com/b865d7c6-895f-48c0-87c2-c3f2c3c9379d",
     },
     {
       name: "Ruy Inigo Fajutagana",
       role: "Documentation",
       image:
-        "https://github.com/JudeGaringalo/Pawnect/blob/main/public/images/Ruy.webp?raw=true",
+        "blob:https://www.figma.com/35eeea56-92d4-4361-af55-36335cb6d7e8",
     },
     {
       name: "Carlvin Cabug-os",
       role: "Documentation",
       image:
-        "https://raw.githubusercontent.com/JudeGaringalo/Pawnect/refs/heads/main/public/images/Carlvin.jpg",
+        "blob:https://www.figma.com/f5539f81-b1e5-4676-86cb-6a86abc93342",
     },
   ];
 
@@ -838,7 +838,7 @@ export default function LandingPage() {
       <footer className="bg-white">
         <div className="w-full overflow-hidden bg-[#1F2937]">
           <img
-            src="https://raw.githubusercontent.com/JudeGaringalo/Pawnect/refs/heads/main/public/images/footer.png"
+            src="blob:https://www.figma.com/17476e2d-8894-4eea-8e61-9270e74ee3b9"
             alt="Pawnect footer"
             className="block h-auto w-full"
           />
