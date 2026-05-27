@@ -311,10 +311,11 @@ app.post(`${PREFIX}/mock-login`, async (c: any) => {
       );
     }
 
+    // 1. Check if username already exists.
     const { data: existingProfile, error: lookupError } =
       await supabase
         .from("profiles")
-        .select("id, username")
+        .select("*")
         .eq("username", username)
         .maybeSingle();
 
@@ -323,16 +324,33 @@ app.post(`${PREFIX}/mock-login`, async (c: any) => {
       return c.json({ error: lookupError.message }, 500);
     }
 
+    // 2. If username exists, LET THEM IN.
+    // This is mockup behavior. We do not block reused usernames.
     if (existingProfile) {
-      return c.json(
-        {
-          error:
-            "This username has already been used. Please choose another username.",
+      // If this old/existing profile has no credential row yet, create one with hashed password.
+      const { data: existingCredential } = await supabase
+        .from("mock_credentials")
+        .select("id")
+        .eq("username", username)
+        .maybeSingle();
+
+      if (!existingCredential) {
+        await supabase.rpc("upsert_mock_credential", {
+          target_profile_id: existingProfile.id,
+          target_username: username,
+          raw_password: password,
+        });
+      }
+
+      return c.json({
+        data: {
+          profile: mapProfile(existingProfile),
+          token: `mock:${existingProfile.id}`,
         },
-        409,
-      );
+      });
     }
 
+    // 3. If username does not exist, create profile.
     const { data: createdProfile, error: createProfileError } =
       await supabase
         .from("profiles")
@@ -355,26 +373,23 @@ app.post(`${PREFIX}/mock-login`, async (c: any) => {
       return c.json({ error: createProfileError.message }, 500);
     }
 
-    const { error: credentialError } = await supabase
-      .from("mock_credentials")
-      .insert({
-        profile_id: createdProfile.id,
-        username,
-        password_hash: null,
-      });
+    // 4. Store hashed password in mock_credentials, not profiles.
+    const { error: credentialError } = await supabase.rpc(
+      "upsert_mock_credential",
+      {
+        target_profile_id: createdProfile.id,
+        target_username: username,
+        raw_password: password,
+      },
+    );
 
     if (credentialError) {
       console.log(
-        "Mock credential insert error:",
+        "Mock credential create error:",
         credentialError,
       );
       return c.json({ error: credentialError.message }, 500);
     }
-
-    await supabase.rpc("set_mock_password_hash", {
-      target_username: username,
-      raw_password: password,
-    });
 
     await logActivity({
       user_id: createdProfile.id,
