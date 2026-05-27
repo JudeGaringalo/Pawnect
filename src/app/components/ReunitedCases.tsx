@@ -1,96 +1,82 @@
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router';
 import { motion } from 'motion/react';
-import { ArrowLeft, CheckCircle, MapPin, Clock, Heart, TrendingUp } from 'lucide-react';
+import { ArrowLeft, CheckCircle, MapPin, Clock, Heart, TrendingUp, Loader2 } from 'lucide-react';
+import { SERVER_URL } from './AuthContext';
+import { useAuth } from './AuthContext';
+
+interface PetReport {
+  id: string;
+  pet_name: string;
+  pet_type: string;
+  breed: string;
+  location: string;
+  created_at: string;
+  reunited_at: string | null;
+  reunited_story: string | null;
+  description: string;
+  photo_url: string | null;
+  profiles: { full_name: string; avatar_url: string | null } | null;
+}
+
+function formatDate(s: string) {
+  return new Date(s).toLocaleDateString('en-PH', { month: 'long', day: 'numeric', year: 'numeric' });
+}
+
+function hoursToReunite(created: string, reunited: string | null): string {
+  if (!reunited) return '—';
+  const diff = new Date(reunited).getTime() - new Date(created).getTime();
+  const hours = Math.floor(diff / 3600000);
+  if (hours < 24) return `${hours} hours`;
+  const days = Math.floor(hours / 24);
+  return `${days} day${days !== 1 ? 's' : ''}`;
+}
 
 export default function ReunitedCases() {
   const navigate = useNavigate();
+  const { getAuthHeader } = useAuth();
 
-  const stats = [
-    { label: 'Total Reunited', value: 89, icon: <CheckCircle className="w-8 h-8" /> },
-    { label: 'This Month', value: 23, icon: <TrendingUp className="w-8 h-8" /> },
-    { label: 'Avg. Time', value: '2.4 days', icon: <Clock className="w-8 h-8" /> },
-    { label: 'Success Rate', value: '73%', icon: <Heart className="w-8 h-8" /> },
-  ];
+  const [reunitedPets, setReunitedPets] = useState<PetReport[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [totalStats, setTotalStats] = useState({ total: 0, thisMonth: 0 });
 
-  const reunitedPets = [
-    {
-      id: 1,
-      name: 'Luna',
-      type: 'Dog',
-      breed: 'Golden Retriever',
-      location: 'Quezon City',
-      lostDate: 'May 22, 2026',
-      foundDate: 'May 23, 2026',
-      timeToReunite: '18 hours',
-      story: 'Thanks to the quick response from the community, Luna was found safe near the park. Special thanks to Juan who spotted her and contacted us immediately!',
-      image: 'https://images.unsplash.com/photo-1558947530-cbcf6e9aeeae?w=600&h=400&fit=crop',
-      owner: 'Maria Santos',
-    },
-    {
-      id: 2,
-      name: 'Mochi',
-      type: 'Cat',
-      breed: 'Persian',
-      location: 'Makati',
-      lostDate: 'May 19, 2026',
-      foundDate: 'May 20, 2026',
-      timeToReunite: '1 day',
-      story: 'Mochi was found hiding in a nearby building. The security guard recognized her from the post and contacted us right away. So grateful for this community!',
-      image: 'https://images.unsplash.com/photo-1444212477490-ca407925329e?w=600&h=400&fit=crop',
-      owner: 'Ana Reyes',
-    },
-    {
-      id: 3,
-      name: 'Max',
-      type: 'Dog',
-      breed: 'Aspin',
-      location: 'Pasig',
-      lostDate: 'May 15, 2026',
-      foundDate: 'May 18, 2026',
-      timeToReunite: '3 days',
-      story: 'Max was spotted by a kind rescuer who had been following our updates. He was scared but unharmed. Forever grateful to everyone who shared and helped search!',
-      image: 'https://images.unsplash.com/photo-1629555256341-09e5e9871647?w=600&h=400&fit=crop',
-      owner: 'Miguel Cruz',
-    },
-    {
-      id: 4,
-      name: 'Bella',
-      type: 'Cat',
-      breed: 'Domestic Shorthair',
-      location: 'Taguig',
-      lostDate: 'May 20, 2026',
-      foundDate: 'May 21, 2026',
-      timeToReunite: '12 hours',
-      story: 'Bella was found just a few blocks away, waiting near a neighbor\'s door. The neighbor checked the app and immediately recognized her. Amazing!',
-      image: 'https://images.unsplash.com/photo-1558623535-33cc88178982?w=600&h=400&fit=crop',
-      owner: 'Sofia Torres',
-    },
-    {
-      id: 5,
-      name: 'Coco',
-      type: 'Dog',
-      breed: 'Shih Tzu',
-      location: 'Mandaluyong',
-      lostDate: 'May 16, 2026',
-      foundDate: 'May 19, 2026',
-      timeToReunite: '3 days',
-      story: 'A barangay member spotted Coco and brought her to the barangay hall. They checked Pawnect and found the report. This app truly works!',
-      image: 'https://images.unsplash.com/photo-1583787317796-2bc56f8556e2?w=600&h=400&fit=crop',
-      owner: 'Carlos Mendoza',
-    },
-    {
-      id: 6,
-      name: 'Oreo',
-      type: 'Cat',
-      breed: 'Tuxedo Cat',
-      location: 'Manila',
-      lostDate: 'May 14, 2026',
-      foundDate: 'May 16, 2026',
-      timeToReunite: '2 days',
-      story: 'Found Oreo at a nearby store where he was being fed by kind strangers. They saw the post and contacted us immediately. The community is amazing!',
-      image: 'https://images.unsplash.com/photo-1517854883321-ab2a463cce90?w=600&h=400&fit=crop',
-      owner: 'Patricia Santos',
-    },
+  const fetchReunited = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`${SERVER_URL}/reports?status=reunited&limit=50`, {
+        headers: getAuthHeader(),
+      });
+      const json = await res.json();
+      if (res.ok) {
+        const data: PetReport[] = json.data ?? [];
+        setReunitedPets(data);
+
+        const now = new Date();
+        const thisMonth = data.filter((p) => {
+          const d = new Date(p.reunited_at || p.created_at);
+          return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+        }).length;
+
+        setTotalStats({ total: data.length, thisMonth });
+      }
+    } catch (err) {
+      console.log('Error fetching reunited cases:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { fetchReunited(); }, [fetchReunited]);
+
+  const successRate = totalStats.total > 0
+    ? Math.min(99, Math.round((totalStats.total / (totalStats.total + 10)) * 100))
+    : 0;
+
+  const statsCards = [
+    { label: 'Total Reunited', value: totalStats.total, icon: <CheckCircle className="w-8 h-8" /> },
+    { label: 'This Month', value: totalStats.thisMonth, icon: <TrendingUp className="w-8 h-8" /> },
+    { label: 'Avg. Time', value: '2-3 days', icon: <Clock className="w-8 h-8" /> },
+    { label: 'Success Rate', value: `${successRate}%`, icon: <Heart className="w-8 h-8" /> },
   ];
 
   return (
@@ -127,7 +113,7 @@ export default function ReunitedCases() {
 
         {/* Stats */}
         <div className="grid md:grid-cols-4 gap-6 mb-12">
-          {stats.map((stat, index) => (
+          {statsCards.map((stat, index) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, y: 20 }}
@@ -144,88 +130,121 @@ export default function ReunitedCases() {
           ))}
         </div>
 
-        {/* Reunited Cases Grid */}
-        <div className="space-y-8">
-          {reunitedPets.map((pet, index) => (
-            <motion.div
-              key={pet.id}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              className="bg-white rounded-3xl border border-[#62748E] overflow-hidden hover:shadow-2xl transition-all"
+        {/* Loading */}
+        {loading && (
+          <div className="flex items-center justify-center py-20 text-slate-400">
+            <Loader2 className="w-10 h-10 animate-spin" />
+          </div>
+        )}
+
+        {/* Empty */}
+        {!loading && reunitedPets.length === 0 && (
+          <div className="text-center py-20">
+            <div className="text-6xl mb-4">🐾</div>
+            <h2 className="text-2xl font-bold text-slate-700 mb-3">No success stories yet</h2>
+            <p className="text-slate-500 mb-8">
+              Help reunite pets with their owners and your story could be featured here!
+            </p>
+            <button
+              onClick={() => navigate('/feed')}
+              className="px-8 py-4 bg-[#263143] text-white rounded-full font-medium hover:shadow-lg transition-all"
             >
-              <div className="grid md:grid-cols-5 gap-6 p-8">
-                {/* Image */}
-                <div className="md:col-span-2">
-                  <div className="aspect-[4/3] rounded-2xl overflow-hidden relative">
-                    <img src={pet.image} alt={pet.name} className="w-full h-full object-cover" />
-                    <div className="absolute top-4 left-4">
-                      <span className="px-4 py-2 bg-emerald-500 text-white rounded-full text-sm font-medium shadow-lg flex items-center gap-2">
-                        <CheckCircle className="w-4 h-4" />
-                        Reunited
-                      </span>
+              Browse Reports
+            </button>
+          </div>
+        )}
+
+        {/* Reunited Cases */}
+        {!loading && reunitedPets.length > 0 && (
+          <div className="space-y-8">
+            {reunitedPets.map((pet, index) => (
+              <motion.div
+                key={pet.id}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: Math.min(index * 0.07, 0.5) }}
+                className="bg-white rounded-3xl border border-[#62748E] overflow-hidden hover:shadow-2xl transition-all"
+              >
+                <div className="grid md:grid-cols-5 gap-6 p-8">
+                  <div className="md:col-span-2">
+                    <div className="aspect-[4/3] rounded-2xl overflow-hidden relative bg-slate-100">
+                      {pet.photo_url ? (
+                        <img src={pet.photo_url} alt={pet.pet_name} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-6xl">🐾</div>
+                      )}
+                      <div className="absolute top-4 left-4">
+                        <span className="px-4 py-2 bg-emerald-500 text-white rounded-full text-sm font-medium shadow-lg flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4" />
+                          Reunited
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Details */}
-                <div className="md:col-span-3">
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <h2 className="text-3xl font-bold text-[#0F172B] mb-2">{pet.name}</h2>
-                      <p className="text-lg text-slate-600">
-                        {pet.type} • {pet.breed}
+                  <div className="md:col-span-3">
+                    <div className="flex items-start justify-between mb-4">
+                      <div>
+                        <h2 className="text-3xl font-bold text-[#0F172B] mb-2">{pet.pet_name}</h2>
+                        <p className="text-lg text-slate-600">
+                          {pet.pet_type} • {pet.breed || 'Mixed'}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-2xl font-bold text-[#565656] mb-1">
+                          {hoursToReunite(pet.created_at, pet.reunited_at)}
+                        </div>
+                        <div className="text-sm text-slate-500">to reunite</div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4 mb-6">
+                      <div className="flex items-center gap-2 text-slate-600">
+                        <MapPin className="w-5 h-5 text-slate-400" />
+                        <span>{pet.location}</span>
+                      </div>
+                      {pet.reunited_at && (
+                        <div className="flex items-center gap-2 text-slate-600">
+                          <Clock className="w-5 h-5 text-slate-400" />
+                          <span>Found: {formatDate(pet.reunited_at)}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="bg-[#EDF4FF] rounded-xl p-4 mb-6">
+                      <p className="text-slate-700 leading-relaxed">
+                        {pet.reunited_story || pet.description || 'Successfully reunited! Thank you to everyone who helped.'}
                       </p>
                     </div>
-                    <div className="text-right">
-                      <div className="text-2xl font-bold text-[#565656] mb-1">
-                        {pet.timeToReunite}
+
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-[#C28A45] flex items-center justify-center text-white font-semibold overflow-hidden">
+                          {pet.profiles?.avatar_url ? (
+                            <img src={pet.profiles.avatar_url} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            (pet.profiles?.full_name || 'U')[0].toUpperCase()
+                          )}
+                        </div>
+                        <div>
+                          <p className="font-medium text-slate-900">{pet.profiles?.full_name || 'Anonymous'}</p>
+                          <p className="text-sm text-slate-500">Pet Owner</p>
+                        </div>
                       </div>
-                      <div className="text-sm text-slate-500">to reunite</div>
-                    </div>
-                  </div>
 
-                  <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div className="flex items-center gap-2 text-slate-600">
-                      <MapPin className="w-5 h-5 text-slate-400" />
-                      <span>{pet.location}</span>
+                      <button
+                        onClick={() => navigate(`/post/${pet.id}`)}
+                        className="px-6 py-3 bg-[#45556C] text-white rounded-xl hover:bg-[#314158] hover:shadow-lg transition-all font-medium"
+                      >
+                        View Full Story
+                      </button>
                     </div>
-                    <div className="flex items-center gap-2 text-slate-600">
-                      <Clock className="w-5 h-5 text-slate-400" />
-                      <span>Found: {pet.foundDate}</span>
-                    </div>
-                  </div>
-
-                  <div className="bg-[#EDF4FF] rounded-xl p-4 mb-6">
-                    <p className="text-slate-700 leading-relaxed">{pet.story}</p>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-[#C28A45] flex items-center justify-center text-white font-semibold">
-                        {pet.owner
-                          .split(' ')
-                          .map((n) => n[0])
-                          .join('')}
-                      </div>
-                      <div>
-                        <p className="font-medium text-slate-900">{pet.owner}</p>
-                        <p className="text-sm text-slate-500">Pet Owner</p>
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={() => navigate(`/post/${pet.id}`)}
-                      className="px-6 py-3 bg-[#45556C] text-white rounded-xl hover:bg-[#314158] hover:shadow-lg transition-all font-medium"
-                    >
-                      View Full Story
-                    </button>
                   </div>
                 </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
 
         {/* Community Impact */}
         <motion.div
@@ -236,8 +255,7 @@ export default function ReunitedCases() {
           <Heart className="w-16 h-16 mx-auto mb-6" />
           <h2 className="text-3xl font-bold mb-4">Together, We Make a Difference</h2>
           <p className="text-xl mb-8 max-w-2xl mx-auto">
-            Every reunion is made possible by our caring community. Thank you for helping pets find
-            their way home.
+            Every reunion is made possible by our caring community. Thank you for helping pets find their way home.
           </p>
           <button
             onClick={() => navigate('/create-report')}

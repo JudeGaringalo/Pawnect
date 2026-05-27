@@ -1,79 +1,257 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { motion } from 'motion/react';
 import {
-  ArrowLeft,
-  MapPin,
-  Heart,
-  Bookmark,
-  Share2,
-  MessageCircle,
-  AlertCircle,
-  Calendar,
-  CheckCircle,
+  ArrowLeft, MapPin, Heart, Bookmark, Share2, MessageCircle,
+  AlertCircle, CheckCircle, Loader2, Flag,
 } from 'lucide-react';
+import { useAuth, SERVER_URL } from './AuthContext';
+import { toast } from 'sonner';
+
+interface Profile {
+  full_name: string;
+  avatar_url: string | null;
+}
+
+interface PetReport {
+  id: string;
+  user_id: string;
+  status: 'lost' | 'found' | 'reunited';
+  pet_name: string;
+  pet_type: string;
+  breed: string;
+  color: string;
+  size: string;
+  gender: string;
+  location: string;
+  description: string;
+  photo_url: string | null;
+  created_at: string;
+  incident_date: string | null;
+  incident_time: string | null;
+  reaction_count: number;
+  comment_count: number;
+  user_reacted: boolean;
+  user_saved: boolean;
+  profiles: Profile | null;
+}
+
+interface Comment {
+  id: string;
+  content: string;
+  created_at: string;
+  profiles: Profile | null;
+}
+
+function formatDate(s: string) {
+  return new Date(s).toLocaleDateString('en-PH', {
+    month: 'long', day: 'numeric', year: 'numeric',
+  });
+}
+
+function timeAgo(s: string) {
+  const diff = Date.now() - new Date(s).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  return `${Math.floor(hours / 24)}d ago`;
+}
 
 export default function PostDetail() {
   const navigate = useNavigate();
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
+  const { user, getAuthHeader } = useAuth();
+
+  const [post, setPost] = useState<PetReport | null>(null);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [liked, setLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
   const [saved, setSaved] = useState(false);
   const [comment, setComment] = useState('');
+  const [submittingComment, setSubmittingComment] = useState(false);
+  const [markingReunited, setMarkingReunited] = useState(false);
 
-  const post = {
-    id: 1,
-    status: 'lost',
-    petName: 'Luna',
-    type: 'Dog',
-    breed: 'Golden Retriever',
-    color: 'Golden',
-    size: 'Large',
-    gender: 'Female',
-    location: 'Quezon City, near Barangay Hall',
-    date: 'May 22, 2026',
-    time: '6:30 PM',
-    description:
-      'Lost near the barangay hall. Wearing a red collar with silver tag. Very friendly and responds to her name. Last seen running towards the park. Please contact me if you have any information.',
-    image: 'https://images.unsplash.com/photo-1558947530-cbcf6e9aeeae?w=800&h=600&fit=crop',
-    ownerName: 'Maria Santos',
-    ownerAvatar: 'MS',
-    reactions: 24,
-    comments: [
-      {
-        id: 1,
-        user: 'Juan Reyes',
-        avatar: 'JR',
-        text: 'Seen near the barangay hall around 6:30 PM. She was walking towards the market.',
-        time: '2 hours ago',
-      },
-      {
-        id: 2,
-        user: 'Sofia Cruz',
-        avatar: 'SC',
-        text: 'This looks like the dog I saw yesterday near the convenience store. I will keep an eye out!',
-        time: '4 hours ago',
-      },
-      {
-        id: 3,
-        user: 'Miguel Torres',
-        avatar: 'MT',
-        text: 'I shared this with our barangay group. Hoping we can find Luna soon!',
-        time: '5 hours ago',
-      },
-    ],
-  };
+  const fetchPost = useCallback(async () => {
+    if (!id) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`${SERVER_URL}/reports/${id}`, {
+        headers: getAuthHeader(),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || 'Post not found');
+      setPost(json.data);
+      setLiked(json.data.user_reacted);
+      setLikeCount(json.data.reaction_count);
+      setSaved(json.data.user_saved);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [id]);
 
-  const activity = [
-    { type: 'posted', user: 'Maria Santos', time: '8 hours ago' },
-    { type: 'comment', user: 'Juan Reyes', time: '2 hours ago' },
-    { type: 'comment', user: 'Sofia Cruz', time: '4 hours ago' },
-  ];
+  const fetchComments = useCallback(async () => {
+    if (!id) return;
+    try {
+      const res = await fetch(`${SERVER_URL}/reports/${id}/comments`, {
+        headers: getAuthHeader(),
+      });
+      const json = await res.json();
+      if (res.ok) setComments(json.data ?? []);
+    } catch {}
+  }, [id]);
 
-  const handleSubmitComment = () => {
-    if (comment.trim()) {
-      setComment('');
+  useEffect(() => { fetchPost(); fetchComments(); }, [fetchPost, fetchComments]);
+
+  const toggleLike = async () => {
+    if (!user) { navigate('/login'); return; }
+    const wasLiked = liked;
+    setLiked(!wasLiked);
+    setLikeCount((c) => wasLiked ? c - 1 : c + 1);
+    try {
+      const res = await fetch(`${SERVER_URL}/reactions/toggle`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
+        body: JSON.stringify({ report_id: id }),
+      });
+      const json = await res.json();
+      if (res.ok) {
+        setLiked(json.reacted);
+        setLikeCount(json.count);
+      } else {
+        setLiked(wasLiked);
+        setLikeCount((c) => wasLiked ? c + 1 : c - 1);
+      }
+    } catch {
+      setLiked(wasLiked);
+      setLikeCount((c) => wasLiked ? c + 1 : c - 1);
     }
   };
+
+  const toggleSave = async () => {
+    if (!user) { navigate('/login'); return; }
+    const wasSaved = saved;
+    setSaved(!wasSaved);
+    try {
+      const res = await fetch(`${SERVER_URL}/saved-posts/toggle`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
+        body: JSON.stringify({ report_id: id }),
+      });
+      const json = await res.json();
+      if (res.ok) {
+        setSaved(json.saved);
+        toast.success(json.saved ? 'Post saved!' : 'Post unsaved');
+      } else {
+        setSaved(wasSaved);
+        toast.error(json.error || 'Failed');
+      }
+    } catch {
+      setSaved(wasSaved);
+    }
+  };
+
+  const handleSubmitComment = async () => {
+    if (!user) { navigate('/login'); return; }
+    if (!comment.trim()) return;
+    setSubmittingComment(true);
+    try {
+      const res = await fetch(`${SERVER_URL}/reports/${id}/comments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
+        body: JSON.stringify({ content: comment.trim() }),
+      });
+      const json = await res.json();
+      if (res.ok) {
+        setComments((prev) => [json.data, ...prev]);
+        setComment('');
+        toast.success('Comment posted!');
+      } else {
+        toast.error(json.error || 'Failed to post comment');
+      }
+    } catch {
+      toast.error('Network error');
+    } finally {
+      setSubmittingComment(false);
+    }
+  };
+
+  const handleMarkReunited = async () => {
+    if (!user || !post) return;
+    setMarkingReunited(true);
+    try {
+      const res = await fetch(`${SERVER_URL}/reports/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
+        body: JSON.stringify({ status: 'reunited' }),
+      });
+      const json = await res.json();
+      if (res.ok) {
+        setPost((p) => p ? { ...p, status: 'reunited' } : p);
+        toast.success('🎉 Marked as reunited! Congratulations!');
+      } else {
+        toast.error(json.error || 'Failed to update status');
+      }
+    } catch {
+      toast.error('Network error');
+    } finally {
+      setMarkingReunited(false);
+    }
+  };
+
+  const handleFlag = async () => {
+    if (!user) { navigate('/login'); return; }
+    const reason = prompt('Why are you flagging this post?');
+    if (!reason) return;
+    try {
+      const res = await fetch(`${SERVER_URL}/flags`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
+        body: JSON.stringify({ report_id: id, reason }),
+      });
+      if (res.ok) toast.success('Report flagged for review');
+      else toast.error('Failed to flag');
+    } catch {
+      toast.error('Network error');
+    }
+  };
+
+  const handleShare = () => {
+    navigator.clipboard?.writeText(window.location.href);
+    toast.success('Link copied!');
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <Loader2 className="w-10 h-10 animate-spin text-slate-400" />
+      </div>
+    );
+  }
+
+  if (error || !post) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center p-8">
+          <p className="text-xl font-semibold text-slate-700 mb-2">Post not found</p>
+          <p className="text-slate-500 mb-4">{error}</p>
+          <button
+            onClick={() => navigate('/feed')}
+            className="px-6 py-3 bg-[#263143] text-white rounded-full"
+          >
+            Back to Feed
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const isOwner = user?.id === post.user_id;
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -91,15 +269,25 @@ export default function PostDetail() {
             <div className="flex items-center gap-2">
               <motion.button
                 whileTap={{ scale: 0.9 }}
-                onClick={() => setSaved(!saved)}
+                onClick={toggleSave}
                 className={`p-2 rounded-full transition-colors ${
                   saved ? 'bg-teal-100 text-teal-600' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
                 <Bookmark className={`w-6 h-6 ${saved ? 'fill-current' : ''}`} />
               </motion.button>
-              <button className="p-2 bg-slate-100 text-slate-600 rounded-full hover:bg-slate-200 transition-colors">
+              <button
+                onClick={handleShare}
+                className="p-2 bg-slate-100 text-slate-600 rounded-full hover:bg-slate-200 transition-colors"
+              >
                 <Share2 className="w-6 h-6" />
+              </button>
+              <button
+                onClick={handleFlag}
+                className="p-2 bg-slate-100 text-slate-600 rounded-full hover:bg-slate-200 transition-colors"
+                title="Flag this post"
+              >
+                <Flag className="w-5 h-5" />
               </button>
             </div>
           </div>
@@ -108,70 +296,69 @@ export default function PostDetail() {
 
       <div className="max-w-7xl mx-auto px-6 py-8">
         <div className="grid lg:grid-cols-3 gap-8">
-          {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Post Card */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="bg-white rounded-2xl border border-slate-200 overflow-hidden"
             >
-              {/* Owner Info */}
               <div className="p-6 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-[#263143] flex items-center justify-center text-white font-semibold">
-                    {post.ownerAvatar}
+                  <div className="w-12 h-12 rounded-full bg-[#263143] flex items-center justify-center text-white font-semibold overflow-hidden">
+                    {post.profiles?.avatar_url ? (
+                      <img src={post.profiles.avatar_url} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      (post.profiles?.full_name || 'U')[0].toUpperCase()
+                    )}
                   </div>
                   <div>
-                    <div className="font-semibold text-slate-900">{post.ownerName}</div>
-                    <div className="text-sm text-slate-500">
-                      {post.date} • {post.time}
-                    </div>
+                    <div className="font-semibold text-slate-900">{post.profiles?.full_name || 'Anonymous'}</div>
+                    <div className="text-sm text-slate-500">{formatDate(post.created_at)}</div>
                   </div>
                 </div>
 
-                <span
-                  className={`px-4 py-2 rounded-full text-sm font-medium border flex items-center gap-2 ${
-                    post.status === 'lost'
-                      ? 'bg-red-100 text-red-700 border-red-200'
-                      : 'bg-blue-100 text-blue-700 border-blue-200'
-                  }`}
-                >
+                <span className={`px-4 py-2 rounded-full text-sm font-medium border flex items-center gap-2 ${
+                  post.status === 'lost'
+                    ? 'bg-red-100 text-red-700 border-red-200'
+                    : post.status === 'found'
+                    ? 'bg-blue-100 text-blue-700 border-blue-200'
+                    : 'bg-emerald-100 text-emerald-700 border-emerald-200'
+                }`}>
                   <AlertCircle className="w-4 h-4" />
                   {post.status.toUpperCase()}
                 </span>
               </div>
 
-              {/* Image */}
-              <div className="aspect-[16/10] overflow-hidden">
-                <img src={post.image} alt={post.petName} className="w-full h-full object-cover" />
-              </div>
+              {post.photo_url && (
+                <div className="aspect-[16/10] overflow-hidden">
+                  <img src={post.photo_url} alt={post.pet_name} className="w-full h-full object-cover" />
+                </div>
+              )}
 
-              {/* Details */}
               <div className="p-6">
-                <h1 className="text-3xl font-bold text-slate-900 mb-4">{post.petName}</h1>
+                <h1 className="text-3xl font-bold text-slate-900 mb-4">{post.pet_name}</h1>
 
                 <div className="grid grid-cols-2 gap-4 mb-6">
                   <div className="p-4 bg-slate-50 rounded-xl">
                     <div className="text-xs text-slate-500 mb-1">Type & Breed</div>
-                    <div className="font-medium text-slate-900">
-                      {post.type} • {post.breed}
-                    </div>
+                    <div className="font-medium text-slate-900">{post.pet_type} • {post.breed || '—'}</div>
                   </div>
                   <div className="p-4 bg-slate-50 rounded-xl">
                     <div className="text-xs text-slate-500 mb-1">Color & Size</div>
-                    <div className="font-medium text-slate-900">
-                      {post.color} • {post.size}
-                    </div>
+                    <div className="font-medium text-slate-900">{post.color || '—'} • {post.size || '—'}</div>
                   </div>
                   <div className="p-4 bg-slate-50 rounded-xl">
                     <div className="text-xs text-slate-500 mb-1">Gender</div>
-                    <div className="font-medium text-slate-900">{post.gender}</div>
+                    <div className="font-medium text-slate-900">{post.gender || '—'}</div>
                   </div>
-                  <div className="p-4 bg-slate-50 rounded-xl">
-                    <div className="text-xs text-slate-500 mb-1">Last Seen</div>
-                    <div className="font-medium text-slate-900">{post.time}</div>
-                  </div>
+                  {post.incident_date && (
+                    <div className="p-4 bg-slate-50 rounded-xl">
+                      <div className="text-xs text-slate-500 mb-1">Date</div>
+                      <div className="font-medium text-slate-900">
+                        {post.incident_date} {post.incident_time && `at ${post.incident_time}`}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex items-start gap-3 mb-6">
@@ -181,35 +368,23 @@ export default function PostDetail() {
 
                 <p className="text-slate-700 leading-relaxed mb-6">{post.description}</p>
 
-                {/* Actions */}
                 <div className="flex items-center gap-4 pt-6 border-t border-slate-100">
                   <motion.button
                     whileTap={{ scale: 0.9 }}
-                    onClick={() => setLiked(!liked)}
+                    onClick={toggleLike}
                     className="flex items-center gap-2 text-slate-600 hover:text-red-500 transition-colors"
                   >
                     <Heart className={`w-6 h-6 ${liked ? 'fill-red-500 text-red-500' : ''}`} />
-                    <span className="font-medium">{post.reactions}</span>
+                    <span className="font-medium">{likeCount}</span>
                   </motion.button>
                   <button className="flex items-center gap-2 text-slate-600 hover:text-teal-600 transition-colors">
                     <MessageCircle className="w-6 h-6" />
-                    <span className="font-medium">{post.comments.length}</span>
+                    <span className="font-medium">{comments.length}</span>
                   </button>
                 </div>
               </div>
             </motion.div>
 
-            {/* I Have Information Button */}
-            <motion.button
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="w-full py-4 bg-[#263143] text-white rounded-xl font-medium hover:bg-[#1F2937] hover:shadow-lg transition-all"
-            >
-              I Have Information
-            </motion.button>
-
-            {/* Comments Section */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -217,56 +392,64 @@ export default function PostDetail() {
               className="bg-white rounded-2xl border border-slate-200 p-6 mt-4"
             >
               <h2 className="text-xl font-semibold text-slate-900 mb-6">
-                Comments ({post.comments.length})
+                Comments ({comments.length})
               </h2>
 
-              {/* Comment Input */}
               <div className="mb-6">
                 <div className="flex gap-3">
                   <div className="w-10 h-10 rounded-full bg-[#45556C] flex items-center justify-center text-white font-semibold flex-shrink-0">
-                    U
+                    {user ? (user.user_metadata?.full_name || user.email || 'U')[0].toUpperCase() : 'U'}
                   </div>
                   <div className="flex-1">
                     <textarea
                       value={comment}
                       onChange={(e) => setComment(e.target.value)}
-                      placeholder="Share any information that might help..."
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none"
+                      placeholder={user ? 'Share any information that might help...' : 'Sign in to comment'}
+                      disabled={!user}
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none disabled:opacity-60"
                       rows={3}
-                    ></textarea>
+                    />
                     <button
                       onClick={handleSubmitComment}
-                      className="mt-2 px-6 py-2 bg-[#263143] text-white rounded-full hover:bg-[#1F2937] transition-colors"
+                      disabled={!user || !comment.trim() || submittingComment}
+                      className="mt-2 px-6 py-2 bg-[#263143] text-white rounded-full hover:bg-[#1F2937] transition-colors disabled:opacity-50 flex items-center gap-2"
                     >
+                      {submittingComment && <Loader2 className="w-4 h-4 animate-spin" />}
                       Post Comment
                     </button>
                   </div>
                 </div>
               </div>
 
-              {/* Comments List */}
-              <div className="space-y-6">
-                {post.comments.map((comment) => (
-                  <div key={comment.id} className="flex gap-3">
-                    <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 font-semibold flex-shrink-0">
-                      {comment.avatar}
-                    </div>
-                    <div className="flex-1">
-                      <div className="bg-slate-50 rounded-xl p-4">
-                        <div className="font-semibold text-slate-900 mb-1">{comment.user}</div>
-                        <p className="text-slate-700">{comment.text}</p>
+              {comments.length === 0 ? (
+                <p className="text-slate-500 text-sm text-center py-6">No comments yet. Be the first to help!</p>
+              ) : (
+                <div className="space-y-6">
+                  {comments.map((c) => (
+                    <div key={c.id} className="flex gap-3">
+                      <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 font-semibold flex-shrink-0">
+                        {c.profiles?.avatar_url ? (
+                          <img src={c.profiles.avatar_url} alt="" className="w-full h-full object-cover rounded-full" />
+                        ) : (
+                          (c.profiles?.full_name || 'U')[0].toUpperCase()
+                        )}
                       </div>
-                      <div className="text-xs text-slate-500 mt-2">{comment.time}</div>
+                      <div className="flex-1">
+                        <div className="bg-slate-50 rounded-xl p-4">
+                          <div className="font-semibold text-slate-900 mb-1">{c.profiles?.full_name || 'Anonymous'}</div>
+                          <p className="text-slate-700">{c.content}</p>
+                        </div>
+                        <div className="text-xs text-slate-500 mt-2">{timeAgo(c.created_at)}</div>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </motion.div>
           </div>
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* Map Preview */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -274,8 +457,9 @@ export default function PostDetail() {
               className="bg-white rounded-2xl border border-slate-200 p-6"
             >
               <h3 className="font-semibold text-slate-900 mb-4">Location</h3>
-              <div className="aspect-video bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl flex items-center justify-center mb-4">
-                <MapPin className="w-12 h-12 text-slate-400" />
+              <div className="p-4 bg-slate-50 rounded-xl flex items-center gap-3 mb-4">
+                <MapPin className="w-5 h-5 text-slate-400 flex-shrink-0" />
+                <span className="text-slate-700 text-sm">{post.location}</span>
               </div>
               <button
                 onClick={() => navigate('/map')}
@@ -285,52 +469,67 @@ export default function PostDetail() {
               </button>
             </motion.div>
 
-            {/* Activity Timeline */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
+              transition={{ delay: 0.15 }}
               className="bg-white rounded-2xl border border-slate-200 p-6"
             >
-              <h3 className="font-semibold text-slate-900 mb-4">Activity</h3>
-              <div className="space-y-4">
-                {activity.map((item, index) => (
-                  <div key={index} className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-full bg-[#D8E2F0] flex items-center justify-center flex-shrink-0">
-                      {item.type === 'posted' ? (
-                        <AlertCircle className="w-4 h-4 text-[#0F172B]" />
-                      ) : (
-                        <MessageCircle className="w-4 h-4 text-[#0F172B]" />
-                      )}
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm text-slate-700">
-                        <span className="font-medium">{item.user}</span>{' '}
-                        {item.type === 'posted' ? 'posted this report' : 'left a comment'}
-                      </p>
-                      <p className="text-xs text-slate-500">{item.time}</p>
-                    </div>
-                  </div>
-                ))}
+              <h3 className="font-semibold text-slate-900 mb-4">Post Info</h3>
+              <div className="space-y-3 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Posted by</span>
+                  <span className="font-medium text-slate-900">{post.profiles?.full_name || 'Anonymous'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Date</span>
+                  <span className="font-medium text-slate-900">{formatDate(post.created_at)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Reactions</span>
+                  <span className="font-medium text-slate-900">{likeCount}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Comments</span>
+                  <span className="font-medium text-slate-900">{comments.length}</span>
+                </div>
               </div>
             </motion.div>
 
-            {/* Mark as Reunited */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="bg-[#E2E8F0] rounded-2xl border border-black-300 p-6"
-            >
-              <CheckCircle className="w-8 h-8 text-emerald-600 mb-3" />
-              <h3 className="font-semibold text-[#0F172B] mb-2">Found your pet?</h3>
-              <p className="text-sm text-[#45556C] mb-4">
-                Mark this post as reunited to celebrate with the community!
-              </p>
-              <button className="w-full py-3 bg-[#263143] text-white rounded-xl hover:bg-[#1F2937] transition-colors font-medium">
-                Mark as Reunited
-              </button>
-            </motion.div>
+            {post.status !== 'reunited' && isOwner && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="bg-[#E2E8F0] rounded-2xl border border-slate-300 p-6"
+              >
+                <CheckCircle className="w-8 h-8 text-emerald-600 mb-3" />
+                <h3 className="font-semibold text-[#0F172B] mb-2">Found your pet?</h3>
+                <p className="text-sm text-[#45556C] mb-4">
+                  Mark this post as reunited to celebrate with the community!
+                </p>
+                <button
+                  onClick={handleMarkReunited}
+                  disabled={markingReunited}
+                  className="w-full py-3 bg-[#263143] text-white rounded-xl hover:bg-[#1F2937] transition-colors font-medium flex items-center justify-center gap-2 disabled:opacity-50"
+                >
+                  {markingReunited && <Loader2 className="w-4 h-4 animate-spin" />}
+                  Mark as Reunited
+                </button>
+              </motion.div>
+            )}
+
+            {post.status === 'reunited' && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-emerald-50 rounded-2xl border border-emerald-200 p-6 text-center"
+              >
+                <CheckCircle className="w-10 h-10 text-emerald-600 mx-auto mb-3" />
+                <h3 className="font-semibold text-emerald-800 mb-1">Reunited! 🎉</h3>
+                <p className="text-sm text-emerald-700">This pet has been safely returned home.</p>
+              </motion.div>
+            )}
           </div>
         </div>
       </div>

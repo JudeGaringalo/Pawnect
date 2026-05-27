@@ -1,201 +1,206 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router';
 import { motion } from 'motion/react';
 import {
-  MapPin,
-  Search,
-  Filter,
-  Heart,
-  MessageCircle,
-  Bookmark,
-  Map,
-  Plus,
-  Bell,
-  User,
-  Home,
-  CheckCircle,
-  AlertCircle,
-  Clock,
+  MapPin, Search, Heart, MessageCircle, Bookmark, Map, Plus, Bell,
+  User, Home, CheckCircle, AlertCircle, Clock, Loader2,
 } from 'lucide-react';
+import { useAuth, SERVER_URL } from './AuthContext';
+import { toast } from 'sonner';
 
-const logoSrc =
-  "https://raw.githubusercontent.com/JudeGaringalo/Pawnect/refs/heads/main/public/images/logo.png";
 const favicon =
-  "https://raw.githubusercontent.com/JudeGaringalo/Pawnect/refs/heads/main/public/images/favicon.png";
+  'https://raw.githubusercontent.com/JudeGaringalo/Pawnect/refs/heads/main/public/images/favicon.png';
+
+interface PetReport {
+  id: string;
+  status: 'lost' | 'found' | 'reunited';
+  pet_name: string;
+  pet_type: string;
+  breed: string;
+  color: string;
+  size: string;
+  location: string;
+  created_at: string;
+  description: string;
+  photo_url: string | null;
+  reaction_count: number;
+  comment_count: number;
+  profiles: { full_name: string; avatar_url: string | null } | null;
+}
+
+const filters = [
+  { id: 'all', label: 'All Posts' },
+  { id: 'lost', label: 'Lost' },
+  { id: 'found', label: 'Found' },
+  { id: 'dog', label: 'Dogs' },
+  { id: 'cat', label: 'Cats' },
+  { id: 'reunited', label: 'Reunited' },
+];
+
+function getStatusColor(status: string) {
+  switch (status) {
+    case 'lost': return 'bg-red-100 text-red-700 border-red-200';
+    case 'found': return 'bg-blue-100 text-blue-700 border-blue-200';
+    case 'reunited': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
+    default: return 'bg-slate-100 text-slate-700 border-slate-200';
+  }
+}
+
+function getStatusIcon(status: string) {
+  switch (status) {
+    case 'lost': return <AlertCircle className="w-4 h-4" />;
+    case 'found': return <MapPin className="w-4 h-4" />;
+    case 'reunited': return <CheckCircle className="w-4 h-4" />;
+    default: return <Clock className="w-4 h-4" />;
+  }
+}
+
+function formatDate(dateStr: string) {
+  return new Date(dateStr).toLocaleDateString('en-PH', {
+    month: 'short', day: 'numeric', year: 'numeric',
+  });
+}
 
 export default function HomeFeed() {
   const navigate = useNavigate();
+  const { user, getAuthHeader } = useAuth();
   const [activeFilter, setActiveFilter] = useState('all');
-  const [savedPosts, setSavedPosts] = useState<Set<number>>(new Set());
-  const [likedPosts, setLikedPosts] = useState<Set<number>>(new Set());
+  const [posts, setPosts] = useState<PetReport[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [likedPosts, setLikedPosts] = useState<Record<string, number>>({});
+  const [savedPosts, setSavedPosts] = useState<Set<string>>(new Set());
+  const [recentActivity, setRecentActivity] = useState<any[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
 
-  const filters = [
-    { id: 'all', label: 'All Posts' },
-    { id: 'lost', label: 'Lost' },
-    { id: 'found', label: 'Found' },
-    { id: 'nearby', label: 'Nearby' },
-    { id: 'dogs', label: 'Dogs' },
-    { id: 'cats', label: 'Cats' },
-    { id: 'reunited', label: 'Reunited' },
-  ];
+  const fetchPosts = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const params = new URLSearchParams();
+      if (activeFilter === 'dog') { params.set('pet_type', 'dog'); }
+      else if (activeFilter === 'cat') { params.set('pet_type', 'cat'); }
+      else if (activeFilter !== 'all') { params.set('status', activeFilter); }
+      params.set('limit', '20');
 
-  const petPosts = [
-    {
-      id: 1,
-      status: 'lost',
-      petName: 'Luna',
-      type: 'Dog',
-      breed: 'Golden Retriever',
-      color: 'Golden',
-      size: 'Large',
-      location: 'Quezon City, near Barangay Hall',
-      date: 'May 22, 2026',
-      time: '6:30 PM',
-      description: 'Lost near the barangay hall. Wearing a red collar with silver tag.',
-      image: 'https://images.unsplash.com/photo-1558947530-cbcf6e9aeeae?w=600&h=400&fit=crop',
-      reactions: 24,
-      comments: 8,
-      isPossibleMatch: false,
-    },
-    {
-      id: 2,
-      status: 'found',
-      petName: 'Unknown',
-      type: 'Cat',
-      breed: 'Domestic Shorthair',
-      color: 'White with black patches',
-      size: 'Medium',
-      location: 'Pasig, near Ortigas Center',
-      date: 'May 23, 2026',
-      time: '8:00 AM',
-      description: 'Found near the convenience store this morning. Very friendly and well-groomed.',
-      image: 'https://images.unsplash.com/photo-1558623535-33cc88178982?w=600&h=400&fit=crop',
-      reactions: 15,
-      comments: 5,
-      isPossibleMatch: true,
-    },
-    {
-      id: 3,
-      status: 'lost',
-      petName: 'Bruno',
-      type: 'Dog',
-      breed: 'Aspin',
-      color: 'Brown',
-      size: 'Medium',
-      location: 'Mandaluyong, Shaw Boulevard',
-      date: 'May 21, 2026',
-      time: '4:00 PM',
-      description: 'Missing since yesterday afternoon. Last seen running towards the park.',
-      image: 'https://images.unsplash.com/photo-1629555256341-09e5e9871647?w=600&h=400&fit=crop',
-      reactions: 42,
-      comments: 15,
-      isPossibleMatch: false,
-    },
-    {
-      id: 4,
-      status: 'reunited',
-      petName: 'Mochi',
-      type: 'Cat',
-      breed: 'Persian',
-      color: 'White',
-      size: 'Small',
-      location: 'Makati, Ayala Avenue',
-      date: 'May 20, 2026',
-      time: '10:00 AM',
-      description: 'Successfully reunited! Thank you to everyone who helped.',
-      image: 'https://images.unsplash.com/photo-1444212477490-ca407925329e?w=600&h=400&fit=crop',
-      reactions: 89,
-      comments: 23,
-      isPossibleMatch: false,
-    },
-    {
-      id: 5,
-      status: 'found',
-      petName: 'Unknown',
-      type: 'Dog',
-      breed: 'Mixed breed',
-      color: 'Black',
-      size: 'Small',
-      location: 'Taguig, BGC',
-      date: 'May 23, 2026',
-      time: '7:30 AM',
-      description: 'Found wandering near the park. Looks scared and hungry.',
-      image: 'https://images.unsplash.com/photo-1583787317796-2bc56f8556e2?w=600&h=400&fit=crop',
-      reactions: 18,
-      comments: 6,
-      isPossibleMatch: false,
-    },
-  ];
+      const res = await fetch(`${SERVER_URL}/reports?${params}`, {
+        headers: getAuthHeader(),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || 'Failed to load posts');
+      setPosts(json.data ?? []);
 
-  const recentActivity = [
-    { pet: 'Max', status: 'reunited', time: '2 hours ago' },
-    { pet: 'Bella', status: 'new', time: '3 hours ago' },
-    { pet: 'Coco', status: 'comment', time: '5 hours ago' },
-  ];
+      // Build local liked/saved state
+      const liked: Record<string, number> = {};
+      (json.data ?? []).forEach((p: PetReport) => {
+        liked[p.id] = p.reaction_count;
+      });
+      setLikedPosts(liked);
+    } catch (err: any) {
+      console.log('Error fetching posts:', err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [activeFilter]);
 
-  const toggleSave = (postId: number) => {
-    setSavedPosts((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(postId)) {
-        newSet.delete(postId);
-      } else {
-        newSet.add(postId);
+  const fetchActivity = useCallback(async () => {
+    try {
+      const res = await fetch(`${SERVER_URL}/reports?limit=3&offset=0`, {
+        headers: getAuthHeader(),
+      });
+      const json = await res.json();
+      if (res.ok) {
+        setRecentActivity(
+          (json.data ?? []).slice(0, 3).map((p: PetReport) => ({
+            pet: p.pet_name,
+            status: p.status,
+            time: formatDate(p.created_at),
+          }))
+        );
       }
-      return newSet;
-    });
-  };
+    } catch {}
+  }, []);
 
-  const toggleLike = (postId: number) => {
-    setLikedPosts((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(postId)) {
-        newSet.delete(postId);
-      } else {
-        newSet.add(postId);
+  const fetchNotifications = useCallback(async () => {
+    if (!user) return;
+    try {
+      const res = await fetch(`${SERVER_URL}/notifications`, {
+        headers: getAuthHeader(),
+      });
+      const json = await res.json();
+      if (res.ok) {
+        const unread = (json.data ?? []).filter((n: any) => !n.read).length;
+        setUnreadCount(unread);
       }
-      return newSet;
-    });
-  };
+    } catch {}
+  }, [user]);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'lost':
-        return 'bg-red-100 text-red-700 border-red-200';
-      case 'found':
-        return 'bg-blue-100 text-blue-700 border-blue-200';
-      case 'reunited':
-        return 'bg-emerald-100 text-emerald-700 border-emerald-200';
-      default:
-        return 'bg-slate-100 text-slate-700 border-slate-200';
+  useEffect(() => { fetchPosts(); }, [fetchPosts]);
+  useEffect(() => { fetchActivity(); }, [fetchActivity]);
+  useEffect(() => { fetchNotifications(); }, [fetchNotifications]);
+
+  const toggleLike = async (postId: string, currentCount: number) => {
+    if (!user) { navigate('/login'); return; }
+    const prev = likedPosts[postId] ?? currentCount;
+    // Optimistic update
+    setLikedPosts((p) => ({ ...p, [postId]: prev + 1 }));
+    try {
+      const res = await fetch(`${SERVER_URL}/reactions/toggle`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
+        body: JSON.stringify({ report_id: postId }),
+      });
+      const json = await res.json();
+      if (res.ok) setLikedPosts((p) => ({ ...p, [postId]: json.count }));
+      else setLikedPosts((p) => ({ ...p, [postId]: prev }));
+    } catch {
+      setLikedPosts((p) => ({ ...p, [postId]: prev }));
     }
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'lost':
-        return <AlertCircle className="w-4 h-4" />;
-      case 'found':
-        return <MapPin className="w-4 h-4" />;
-      case 'reunited':
-        return <CheckCircle className="w-4 h-4" />;
-      default:
-        return <Clock className="w-4 h-4" />;
+  const toggleSave = async (postId: string) => {
+    if (!user) { navigate('/login'); return; }
+    const wasSaved = savedPosts.has(postId);
+    setSavedPosts((prev) => {
+      const next = new Set(prev);
+      wasSaved ? next.delete(postId) : next.add(postId);
+      return next;
+    });
+    try {
+      const res = await fetch(`${SERVER_URL}/saved-posts/toggle`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
+        body: JSON.stringify({ report_id: postId }),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        setSavedPosts((prev) => {
+          const next = new Set(prev);
+          wasSaved ? next.add(postId) : next.delete(postId);
+          return next;
+        });
+        toast.error(json.error || 'Failed to save post');
+      } else {
+        toast.success(json.saved ? 'Post saved!' : 'Post unsaved');
+      }
+    } catch {
+      setSavedPosts((prev) => {
+        const next = new Set(prev);
+        wasSaved ? next.add(postId) : next.delete(postId);
+        return next;
+      });
     }
   };
 
   return (
     <div className="min-h-screen bg-slate-50">
-      {/* Top Navigation */}
       <nav className="sticky top-0 z-50 bg-white border-b border-slate-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-8">
           <div className="flex items-center justify-between gap-4">
-             <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-[0_2px_10px_rgba(0,0,0,0.08)]">
-                <img
-                  src={favicon}
-                  alt="Pawnect logo"
-                  className="h-6 w-auto object-contain" 
-                />
+                <img src={favicon} alt="Pawnect logo" className="h-6 w-auto object-contain" />
               </div>
               <span className="text-2xl font-bold text-slate-900">Pawnect</span>
             </div>
@@ -207,7 +212,8 @@ export default function HomeFeed() {
                   type="text"
                   placeholder="Search by pet name, breed, color, or location"
                   onClick={() => navigate('/search')}
-                  className="w-full pl-12 pr-4 py-3 bg-slate-100 border border-slate-200 rounded-full focus:outline-none focus:border-[#1F2937] focus:bg-slate-100 transition-all"
+                  readOnly
+                  className="w-full pl-12 pr-4 py-3 bg-slate-100 border border-slate-200 rounded-full focus:outline-none focus:border-[#1F2937] cursor-pointer transition-all"
                 />
               </div>
             </div>
@@ -220,25 +226,34 @@ export default function HomeFeed() {
                 <Plus className="w-5 h-5" />
                 <span className="hidden sm:inline">Report Pet</span>
               </button>
-              <button className="relative p-2 hover:bg-slate-100 rounded-full transition-colors">
+              <button
+                onClick={() => navigate('/dashboard')}
+                className="relative p-2 hover:bg-slate-100 rounded-full transition-colors"
+              >
                 <Bell className="w-6 h-6 text-slate-600" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                {unreadCount > 0 && (
+                  <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
+                )}
               </button>
               <button
                 onClick={() => navigate('/dashboard')}
                 className="p-2 hover:bg-slate-100 rounded-full transition-colors"
               >
-                <User className="w-6 h-6 text-slate-600" />
+                {user ? (
+                  <div className="w-8 h-8 rounded-full bg-[#263143] flex items-center justify-center text-white text-sm font-semibold">
+                    {(user.user_metadata?.full_name || user.email || 'U')[0].toUpperCase()}
+                  </div>
+                ) : (
+                  <User className="w-6 h-6 text-slate-600" />
+                )}
               </button>
             </div>
-            
           </div>
         </div>
       </nav>
 
       <div className="max-w-7xl mx-auto px-6 py-6">
         <div className="grid lg:grid-cols-12 gap-6">
-          {/* Main Feed */}
           <div className="lg:col-span-8">
             {/* Filters */}
             <div className="mb-6 flex items-center gap-3 overflow-x-auto py-1 px-1">
@@ -259,137 +274,162 @@ export default function HomeFeed() {
               ))}
             </div>
 
-            {/* Pet Posts */}
-            <div className="space-y-4">
-              {petPosts.map((post, index) => (
-                <motion.div
-                  key={post.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  className="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-lg transition-all"
+            {/* Loading */}
+            {loading && (
+              <div className="flex flex-col items-center justify-center py-20 text-slate-400">
+                <Loader2 className="w-10 h-10 animate-spin mb-3" />
+                <p>Loading posts...</p>
+              </div>
+            )}
+
+            {/* Error */}
+            {!loading && error && (
+              <div className="bg-red-50 border border-red-200 rounded-2xl p-6 text-center text-red-700">
+                <p className="font-semibold mb-2">Failed to load posts</p>
+                <p className="text-sm mb-4">{error}</p>
+                <button
+                  onClick={fetchPosts}
+                  className="px-4 py-2 bg-red-600 text-white rounded-full text-sm hover:bg-red-700 transition-colors"
                 >
-                  {/* Post Header */}
-                  <div className="p-4 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-[#C28A45] flex items-center justify-center text-white font-semibold">
-                        {post.petName[0]}
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-semibold text-slate-900">{post.petName}</span>
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-medium border flex items-center gap-1 ${getStatusColor(
-                              post.status
-                            )}`}
-                          >
-                            {getStatusIcon(post.status)}
-                            {post.status.charAt(0).toUpperCase() + post.status.slice(1)}
-                          </span>
-                          {post.isPossibleMatch && (
-                            <span className="px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-medium">
-                              Possible Match
-                            </span>
+                  Try again
+                </button>
+              </div>
+            )}
+
+            {/* Empty */}
+            {!loading && !error && posts.length === 0 && (
+              <div className="flex flex-col items-center justify-center py-20 text-slate-400">
+                <div className="text-6xl mb-4">🐾</div>
+                <p className="text-lg font-medium text-slate-600 mb-2">No posts found</p>
+                <p className="text-sm mb-6">Be the first to report a lost or found pet!</p>
+                <button
+                  onClick={() => navigate('/create-report')}
+                  className="px-6 py-3 bg-[#263143] text-white rounded-full font-medium hover:shadow-lg transition-all"
+                >
+                  Create Report
+                </button>
+              </div>
+            )}
+
+            {/* Posts */}
+            {!loading && !error && posts.length > 0 && (
+              <div className="space-y-4">
+                {posts.map((post, index) => (
+                  <motion.div
+                    key={post.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.04 }}
+                    className="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-lg transition-all"
+                  >
+                    <div className="p-4 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-[#C28A45] flex items-center justify-center text-white font-semibold overflow-hidden">
+                          {post.profiles?.avatar_url ? (
+                            <img src={post.profiles.avatar_url} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            (post.profiles?.full_name || 'U')[0].toUpperCase()
                           )}
                         </div>
-                        <div className="text-sm text-slate-500 pt-1">
-                          {post.date} • {post.time}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Post Image */}
-                  <div
-                    className="aspect-[16/10] overflow-hidden cursor-pointer"
-                    onClick={() => navigate(`/post/${post.id}`)}
-                  >
-                    <img
-                      src={post.image}
-                      alt={post.petName}
-                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-
-                  {/* Post Details */}
-                  <div className="p-4">
-                    <div className="grid grid-cols-2 gap-3 mb-4">
-                      <div>
-                        <div className="text-xs text-slate-500 mb-1">Type & Breed</div>
-                        <div className="text-sm font-medium text-slate-900">
-                          {post.type} • {post.breed}
-                        </div>
-                      </div>
-                      <div>
-                        <div className="text-xs text-slate-500 mb-1">Color & Size</div>
-                        <div className="text-sm font-medium text-slate-900">
-                          {post.color} • {post.size}
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold text-slate-900">{post.pet_name}</span>
+                            <span className={`px-3 py-1 rounded-full text-xs font-medium border flex items-center gap-1 ${getStatusColor(post.status)}`}>
+                              {getStatusIcon(post.status)}
+                              {post.status.charAt(0).toUpperCase() + post.status.slice(1)}
+                            </span>
+                          </div>
+                          <div className="text-sm text-slate-500 pt-1">
+                            {post.profiles?.full_name || 'Anonymous'} • {formatDate(post.created_at)}
+                          </div>
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex items-start gap-2 mb-4">
-                      <MapPin className="w-4 h-4 text-slate-400 mt-0.5" />
-                      <span className="text-sm text-slate-700">{post.location}</span>
-                    </div>
+                    {post.photo_url && (
+                      <div
+                        className="aspect-[16/10] overflow-hidden cursor-pointer"
+                        onClick={() => navigate(`/post/${post.id}`)}
+                      >
+                        <img
+                          src={post.photo_url}
+                          alt={post.pet_name}
+                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
+                    )}
 
-                    <p className="text-slate-700 mb-4">{post.description}</p>
+                    <div className="p-4">
+                      <div className="grid grid-cols-2 gap-3 mb-4">
+                        <div>
+                          <div className="text-xs text-slate-500 mb-1">Type & Breed</div>
+                          <div className="text-sm font-medium text-slate-900">
+                            {post.pet_type} • {post.breed || 'Unknown'}
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-xs text-slate-500 mb-1">Color & Size</div>
+                          <div className="text-sm font-medium text-slate-900">
+                            {post.color || '—'} • {post.size || '—'}
+                          </div>
+                        </div>
+                      </div>
 
-                    {/* Actions */}
-                    <div className="flex items-center justify-between pt-4 border-t border-slate-100">
-                      <div className="flex items-center gap-4">
-                        <motion.button
-                          whileTap={{ scale: 0.9 }}
-                          onClick={() => toggleLike(post.id)}
-                          className="flex items-center gap-2 text-slate-600 hover:text-red-500 transition-colors"
-                        >
-                          <Heart
-                            className={`w-5 h-5 ${
-                              likedPosts.has(post.id) ? 'fill-red-500 text-red-500' : ''
+                      <div className="flex items-start gap-2 mb-4">
+                        <MapPin className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
+                        <span className="text-sm text-slate-700">{post.location}</span>
+                      </div>
+
+                      <p className="text-slate-700 mb-4 line-clamp-2">{post.description}</p>
+
+                      <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+                        <div className="flex items-center gap-4">
+                          <motion.button
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => toggleLike(post.id, post.reaction_count)}
+                            className="flex items-center gap-2 text-slate-600 hover:text-red-500 transition-colors"
+                          >
+                            <Heart className="w-5 h-5" />
+                            <span className="text-sm font-medium">{likedPosts[post.id] ?? post.reaction_count}</span>
+                          </motion.button>
+                          <button
+                            onClick={() => navigate(`/post/${post.id}`)}
+                            className="flex items-center gap-2 text-slate-600 hover:text-black transition-colors"
+                          >
+                            <MessageCircle className="w-5 h-5" />
+                            <span className="text-sm font-medium">{post.comment_count}</span>
+                          </button>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <motion.button
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => toggleSave(post.id)}
+                            className={`p-2 rounded-full transition-colors ${
+                              savedPosts.has(post.id)
+                                ? 'bg-teal-100 text-teal-600'
+                                : 'hover:bg-slate-100 text-slate-600'
                             }`}
-                          />
-                          <span className="text-sm font-medium">{post.reactions}</span>
-                        </motion.button>
-                        <button
-                          onClick={() => navigate(`/post/${post.id}`)}
-                          className="flex items-center gap-2 text-slate-600 hover:text-black transition-colors"
-                        >
-                          <MessageCircle className="w-5 h-5" />
-                          <span className="text-sm font-medium">{post.comments}</span>
-                        </button>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <motion.button
-                          whileTap={{ scale: 0.9 }}
-                          onClick={() => toggleSave(post.id)}
-                          className={`p-2 rounded-full transition-colors ${
-                            savedPosts.has(post.id)
-                              ? 'bg-teal-100 text-teal-600'
-                              : 'hover:bg-slate-100 text-slate-600'
-                          }`}
-                        >
-                          <Bookmark
-                            className={`w-5 h-5 ${savedPosts.has(post.id) ? 'fill-current' : ''}`}
-                          />
-                        </motion.button>
-                        <button
-                          onClick={() => navigate('/map')}
-                          className="px-4 py-2 bg-[#D8E2F0] text-[#1F2937] rounded-full hover:bg-[#1F2937] transition-colors hover:text-[#D8E2F0] text-sm font-medium"
-                        >
-                          View on Map
-                        </button>
+                          >
+                            <Bookmark className={`w-5 h-5 ${savedPosts.has(post.id) ? 'fill-current' : ''}`} />
+                          </motion.button>
+                          <button
+                            onClick={() => navigate('/map')}
+                            className="px-4 py-2 bg-[#D8E2F0] text-[#1F2937] rounded-full hover:bg-[#1F2937] hover:text-[#D8E2F0] transition-colors text-sm font-medium"
+                          >
+                            View on Map
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+                  </motion.div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Sidebar */}
           <div className="lg:col-span-4 space-y-4">
-            {/* Quick Actions */}
             <div className="bg-white rounded-2xl border border-slate-200 p-6">
               <h3 className="font-semibold text-slate-900 mb-4">Quick Actions</h3>
               <div className="space-y-2">
@@ -417,38 +457,40 @@ export default function HomeFeed() {
               </div>
             </div>
 
-            {/* Recent Activity */}
             <div className="bg-white rounded-2xl border border-slate-200 p-6">
               <h3 className="font-semibold text-slate-900 mb-4">Recent Activity</h3>
-              <div className="space-y-3">
-                {recentActivity.map((activity, index) => (
-                  <div key={index} className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-[#D8E2F0] flex items-center justify-center">
-                      {activity.status === 'reunited' ? (
-                        <CheckCircle className="w-4 h-4 text-[#0F172B]" />
-                      ) : activity.status === 'new' ? (
-                        <AlertCircle className="w-4 h-4 text-[#0F172B]" />
-                      ) : (
-                        <MessageCircle className="w-4 h-4 text-[#0F172B]" />
-                      )}
+              {recentActivity.length === 0 ? (
+                <p className="text-sm text-slate-500">No recent activity</p>
+              ) : (
+                <div className="space-y-3">
+                  {recentActivity.map((activity, index) => (
+                    <div key={index} className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-[#D8E2F0] flex items-center justify-center">
+                        {activity.status === 'reunited' ? (
+                          <CheckCircle className="w-4 h-4 text-[#0F172B]" />
+                        ) : activity.status === 'lost' ? (
+                          <AlertCircle className="w-4 h-4 text-[#0F172B]" />
+                        ) : (
+                          <MapPin className="w-4 h-4 text-[#0F172B]" />
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm text-slate-700">
+                          <span className="font-medium">{activity.pet}</span>{' '}
+                          {activity.status === 'reunited'
+                            ? 'was reunited'
+                            : activity.status === 'lost'
+                            ? 'reported missing'
+                            : 'was found'}
+                        </p>
+                        <p className="text-xs text-slate-500">{activity.time}</p>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <p className="text-sm text-slate-700">
-                        {activity.pet}{' '}
-                        {activity.status === 'reunited'
-                          ? 'was reunited'
-                          : activity.status === 'new'
-                          ? 'reported'
-                          : 'has a new comment'}
-                      </p>
-                      <p className="text-xs text-slate-500">{activity.time}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
 
-            {/* Safety Reminder */}
             <div className="bg-yellow-200 rounded-2xl border border-amber-500 p-6">
               <h3 className="font-semibold text-slate-900 mb-2">Safety Reminder</h3>
               <p className="text-sm text-slate-700">
@@ -459,31 +501,22 @@ export default function HomeFeed() {
         </div>
       </div>
 
-      {/* Bottom Navigation (Mobile) */}
+      {/* Mobile Bottom Nav */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-lg">
         <div className="grid grid-cols-4 gap-2 p-4">
           <button className="flex flex-col items-center gap-1 text-teal-600">
             <Home className="w-6 h-6" />
             <span className="text-xs font-medium">Feed</span>
           </button>
-          <button
-            onClick={() => navigate('/search')}
-            className="flex flex-col items-center gap-1 text-slate-400"
-          >
+          <button onClick={() => navigate('/search')} className="flex flex-col items-center gap-1 text-slate-400">
             <Search className="w-6 h-6" />
             <span className="text-xs">Search</span>
           </button>
-          <button
-            onClick={() => navigate('/map')}
-            className="flex flex-col items-center gap-1 text-slate-400"
-          >
+          <button onClick={() => navigate('/map')} className="flex flex-col items-center gap-1 text-slate-400">
             <Map className="w-6 h-6" />
             <span className="text-xs">Map</span>
           </button>
-          <button
-            onClick={() => navigate('/dashboard')}
-            className="flex flex-col items-center gap-1 text-slate-400"
-          >
+          <button onClick={() => navigate('/dashboard')} className="flex flex-col items-center gap-1 text-slate-400">
             <User className="w-6 h-6" />
             <span className="text-xs">Profile</span>
           </button>
