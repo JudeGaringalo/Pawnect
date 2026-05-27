@@ -27,6 +27,7 @@ export interface Profile {
   avatar_url: string | null;
   location: string | null;
   role: "user" | "admin" | null;
+  is_admin?: boolean;
   created_at: string;
 }
 
@@ -141,6 +142,9 @@ export function AuthProvider({
     }
   };
 
+  const isAdmin =
+    profile?.role === "admin" || profile?.is_admin === true;
+
   return (
     <AuthContext.Provider
       value={{
@@ -152,7 +156,7 @@ export function AuthProvider({
         signOut,
         getAuthHeader,
         refreshProfile,
-        isAdmin: profile?.role === "admin",
+        isAdmin,
       }}
     >
       {children}
