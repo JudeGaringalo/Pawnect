@@ -64,7 +64,7 @@ export default function CreateReport() {
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
                   step >= 1
-                    ? 'bg-teal-600 text-white'
+                    ? 'bg-[#1F2937] text-white'
                     : 'bg-slate-200 text-slate-400'
                 }`}
               >
@@ -72,15 +72,15 @@ export default function CreateReport() {
               </div>
 
               <div
-                className={`w-12 h-0.5 ${
-                  step >= 2 ? 'bg-teal-600' : 'bg-slate-200'
+                className={`w-12 h-1 ${
+                  step >= 2 ? 'bg-[#1F2937]' : 'bg-slate-200'
                 }`}
               />
 
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
                   step >= 2
-                    ? 'bg-teal-600 text-white'
+                    ? 'bg-[#1F2937] text-white'
                     : 'bg-slate-200 text-slate-400'
                 }`}
               >
@@ -88,15 +88,15 @@ export default function CreateReport() {
               </div>
 
               <div
-                className={`w-12 h-0.5 ${
-                  step >= 3 ? 'bg-teal-600' : 'bg-slate-200'
+                className={`w-12 h-1 ${
+                  step >= 3 ? 'bg-[#1F2937]' : 'bg-slate-200'
                 }`}
               />
 
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
                   step >= 3
-                    ? 'bg-teal-600 text-white'
+                    ? 'bg-[#1F2937] text-white'
                     : 'bg-slate-200 text-slate-400'
                 }`}
               >
@@ -109,13 +109,13 @@ export default function CreateReport() {
         </div>
       </nav>
 
-      <main className="max-w-2xl mx-auto px-6 py-8">
+      <main className="max-w-2xl mx-auto px-6 py-12">
         {step === 1 && (
           <motion.section
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, ease: 'easeOut' }}
-            className="space-y-6"
+            className="space-y-8"
           >
             <div>
               <h1 className="text-3xl font-bold text-slate-900 mb-2">
@@ -171,7 +171,7 @@ export default function CreateReport() {
             <button
               type="button"
               onClick={() => setStep(2)}
-              className="w-full py-4 bg-gradient-to-r from-teal-600 to-emerald-600 text-white rounded-full font-medium hover:shadow-lg transition-all"
+              className="w-full py-4 bg-[#1F2937] text-white rounded-full font-medium hover:bg-[#0F172B] hover:shadow-lg transition-all"
             >
               Continue
             </button>
@@ -200,7 +200,7 @@ export default function CreateReport() {
                   Upload Photo
                 </label>
 
-                <div className="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center hover:border-teal-500 transition-colors cursor-pointer">
+                <div className="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center hover:border-[#1F2937] transition-colors cursor-pointer">
                   <Upload className="w-8 h-8 text-slate-400 mx-auto mb-2" />
                   <p className="text-sm text-slate-600">
                     Click to upload or drag and drop
@@ -213,7 +213,7 @@ export default function CreateReport() {
                   <label className="block text-sm font-medium text-slate-700 mb-2">
                     Pet Type
                   </label>
-                  <select className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500">
+                  <select className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#263143]">
                     <option>Dog</option>
                     <option>Cat</option>
                     <option>Other</option>
@@ -227,7 +227,7 @@ export default function CreateReport() {
                   <input
                     type="text"
                     placeholder="e.g., Luna"
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#263143]"
                   />
                 </div>
               </div>
@@ -240,7 +240,7 @@ export default function CreateReport() {
                   <input
                     type="text"
                     placeholder="e.g., Golden Retriever"
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#263143]"
                   />
                 </div>
 
@@ -251,7 +251,7 @@ export default function CreateReport() {
                   <input
                     type="text"
                     placeholder="e.g., Golden"
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#263143]"
                   />
                 </div>
               </div>
@@ -261,7 +261,7 @@ export default function CreateReport() {
                   <label className="block text-sm font-medium text-slate-700 mb-2">
                     Size
                   </label>
-                  <select className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500">
+                  <select className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#263143]">
                     <option>Small</option>
                     <option>Medium</option>
                     <option>Large</option>
@@ -272,7 +272,7 @@ export default function CreateReport() {
                   <label className="block text-sm font-medium text-slate-700 mb-2">
                     Gender
                   </label>
-                  <select className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500">
+                  <select className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#263143]">
                     <option>Male</option>
                     <option>Female</option>
                     <option>Unknown</option>
@@ -285,7 +285,7 @@ export default function CreateReport() {
               <button
                 type="button"
                 onClick={() => setStep(1)}
-                className="flex-1 py-4 bg-white text-slate-700 border-2 border-slate-200 rounded-full font-medium hover:border-slate-300 transition-all"
+                className="flex-1 py-4 bg-white text-slate-700 border-2 border-slate-200 rounded-full font-medium hover:border-[#263143] transition-all"
               >
                 Back
               </button>
@@ -293,7 +293,7 @@ export default function CreateReport() {
               <button
                 type="button"
                 onClick={() => setStep(3)}
-                className="flex-1 py-4 bg-gradient-to-r from-teal-600 to-emerald-600 text-white rounded-full font-medium hover:shadow-lg transition-all"
+                className="flex-1 py-4 bg-[#1F2937] text-white rounded-full font-medium hover:bg-[#0F172B] hover:shadow-lg transition-all"
               >
                 Continue
               </button>
@@ -328,7 +328,7 @@ export default function CreateReport() {
                   <input
                     type="text"
                     placeholder="e.g., Quezon City, near Barangay Hall"
-                    className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#263143]"
                   />
                 </div>
               </div>
@@ -347,7 +347,7 @@ export default function CreateReport() {
                   </label>
                   <input
                     type="date"
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#263143]"
                   />
                 </div>
 
@@ -357,7 +357,7 @@ export default function CreateReport() {
                   </label>
                   <input
                     type="time"
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#263143]"
                   />
                 </div>
               </div>
@@ -369,7 +369,7 @@ export default function CreateReport() {
                 <textarea
                   rows={4}
                   placeholder="Provide additional details, distinctive markings, behavior, or circumstances."
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none"
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#263143] resize-none"
                 />
               </div>
 
@@ -377,7 +377,7 @@ export default function CreateReport() {
                 <label className="block text-sm font-medium text-slate-700 mb-2">
                   Contact Preference
                 </label>
-                <select className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500">
+                <select className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#263143]">
                   <option>Contact me via Pawnect messages</option>
                   <option>Display my phone number</option>
                   <option>Display my email</option>
@@ -389,7 +389,7 @@ export default function CreateReport() {
               <button
                 type="button"
                 onClick={() => setStep(2)}
-                className="flex-1 py-4 bg-white text-slate-700 border-2 border-slate-200 rounded-full font-medium hover:border-slate-300 transition-all"
+                className="flex-1 py-4 bg-white text-slate-700 border-2 border-slate-200 rounded-full font-medium hover:border-[#263143] transition-all"
               >
                 Back
               </button>
@@ -397,7 +397,7 @@ export default function CreateReport() {
               <button
                 type="button"
                 onClick={handleSubmit}
-                className="flex-1 py-4 bg-gradient-to-r from-teal-600 to-emerald-600 text-white rounded-full font-medium hover:shadow-lg transition-all"
+                className="flex-1 py-4 bg-[#1F2937] text-white rounded-full font-medium hover:bg-[#0F172B] hover:shadow-lg transition-all"
               >
                 Submit Report
               </button>

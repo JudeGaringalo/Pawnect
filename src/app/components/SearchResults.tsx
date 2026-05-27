@@ -68,8 +68,8 @@ export default function SearchResults() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search by pet name, breed, color, or location"
-                className="w-full pl-12 pr-4 py-3 bg-slate-100 border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-white transition-all"
                 autoFocus
+                className="w-full pl-12 pr-4 py-3 bg-slate-100 border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-slate-700 focus:bg-slate-100 transition-all"
               />
             </div>
 
@@ -87,24 +87,24 @@ export default function SearchResults() {
               animate={{ opacity: 1, height: 'auto' }}
               className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3"
             >
-              <select className="px-4 py-2 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+              <select className="px-4 py-2 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#263143]">
                 <option>All Types</option>
                 <option>Dogs</option>
                 <option>Cats</option>
               </select>
-              <select className="px-4 py-2 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+              <select className="px-4 py-2 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1F2937]">
                 <option>All Status</option>
                 <option>Lost</option>
                 <option>Found</option>
                 <option>Reunited</option>
               </select>
-              <select className="px-4 py-2 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+              <select className="px-4 py-2 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1F2937]">
                 <option>All Locations</option>
                 <option>Quezon City</option>
                 <option>Pasig</option>
                 <option>Makati</option>
               </select>
-              <select className="px-4 py-2 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+              <select className="px-4 py-2 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1F2937]">
                 <option>Sort by Latest</option>
                 <option>Sort by Nearest</option>
                 <option>Most Commented</option>
@@ -126,7 +126,7 @@ export default function SearchResults() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.05 }}
                   onClick={() => setSearchQuery(suggestion)}
-                  className="w-full flex items-center gap-3 p-4 bg-white rounded-xl border border-slate-200 hover:border-teal-500 hover:shadow-md transition-all text-left"
+                  className="w-full flex items-center gap-3 p-4 bg-white rounded-xl border border-slate-200 hover:border-[#1F2937] hover:shadow-md transition-all text-left"
                 >
                   <Search className="w-5 h-5 text-slate-400" />
                   <span className="text-slate-700">{suggestion}</span>

@@ -69,7 +69,7 @@ export default function MapView() {
               <input
                 type="text"
                 placeholder="Search location..."
-                className="w-full pl-12 pr-4 py-3 bg-slate-100 border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-teal-500"
+                className="w-full pl-12 pr-4 py-3 bg-slate-100 border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-slate-700 focus:bg-slate-100 transition-all"
               />
             </div>
 

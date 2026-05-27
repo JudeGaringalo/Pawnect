@@ -119,7 +119,7 @@ export default function PostDetail() {
               {/* Owner Info */}
               <div className="p-6 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center text-white font-semibold">
+                  <div className="w-12 h-12 rounded-full bg-[#263143] flex items-center justify-center text-white font-semibold">
                     {post.ownerAvatar}
                   </div>
                   <div>
@@ -204,7 +204,7 @@ export default function PostDetail() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="w-full py-4 bg-gradient-to-r from-teal-600 to-emerald-600 text-white rounded-xl font-medium hover:shadow-lg transition-all"
+              className="w-full py-4 bg-[#263143] text-white rounded-xl font-medium hover:bg-[#1F2937] hover:shadow-lg transition-all"
             >
               I Have Information
             </motion.button>
@@ -214,7 +214,7 @@ export default function PostDetail() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="bg-white rounded-2xl border border-slate-200 p-6"
+              className="bg-white rounded-2xl border border-slate-200 p-6 mt-4"
             >
               <h2 className="text-xl font-semibold text-slate-900 mb-6">
                 Comments ({post.comments.length})
@@ -223,7 +223,7 @@ export default function PostDetail() {
               {/* Comment Input */}
               <div className="mb-6">
                 <div className="flex gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center text-white font-semibold flex-shrink-0">
+                  <div className="w-10 h-10 rounded-full bg-[#45556C] flex items-center justify-center text-white font-semibold flex-shrink-0">
                     U
                   </div>
                   <div className="flex-1">
@@ -236,7 +236,7 @@ export default function PostDetail() {
                     ></textarea>
                     <button
                       onClick={handleSubmitComment}
-                      className="mt-2 px-6 py-2 bg-teal-600 text-white rounded-full hover:bg-teal-700 transition-colors"
+                      className="mt-2 px-6 py-2 bg-[#263143] text-white rounded-full hover:bg-[#1F2937] transition-colors"
                     >
                       Post Comment
                     </button>
@@ -279,7 +279,7 @@ export default function PostDetail() {
               </div>
               <button
                 onClick={() => navigate('/map')}
-                className="w-full py-3 bg-teal-50 text-teal-700 rounded-xl hover:bg-teal-100 transition-colors font-medium"
+                className="w-full py-3 bg-[#D8E2F0] text-[#0F172B] rounded-xl hover:bg-[#1F2937] hover:text-white transition-colors font-medium"
               >
                 View on Map
               </button>
@@ -296,11 +296,11 @@ export default function PostDetail() {
               <div className="space-y-4">
                 {activity.map((item, index) => (
                   <div key={index} className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center flex-shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-[#D8E2F0] flex items-center justify-center flex-shrink-0">
                       {item.type === 'posted' ? (
-                        <AlertCircle className="w-4 h-4 text-teal-600" />
+                        <AlertCircle className="w-4 h-4 text-[#0F172B]" />
                       ) : (
-                        <MessageCircle className="w-4 h-4 text-teal-600" />
+                        <MessageCircle className="w-4 h-4 text-[#0F172B]" />
                       )}
                     </div>
                     <div className="flex-1">
@@ -320,14 +320,14 @@ export default function PostDetail() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl border border-emerald-200 p-6"
+              className="bg-[#E2E8F0] rounded-2xl border border-black-300 p-6"
             >
               <CheckCircle className="w-8 h-8 text-emerald-600 mb-3" />
-              <h3 className="font-semibold text-slate-900 mb-2">Found your pet?</h3>
-              <p className="text-sm text-slate-600 mb-4">
+              <h3 className="font-semibold text-[#0F172B] mb-2">Found your pet?</h3>
+              <p className="text-sm text-[#45556C] mb-4">
                 Mark this post as reunited to celebrate with the community!
               </p>
-              <button className="w-full py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors font-medium">
+              <button className="w-full py-3 bg-[#263143] text-white rounded-xl hover:bg-[#1F2937] transition-colors font-medium">
                 Mark as Reunited
               </button>
             </motion.div>

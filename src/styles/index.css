@@ -1,3 +1,38 @@
 @import './fonts.css';
 @import './tailwind.css';
 @import './theme.css';
+
+@layer utilities {
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    /* Adjust this percentage based on how many duplicated items you have.
+       If it jumps instead of looping seamlessly, you'll need to tweak this 
+       or ensure the exact width of your duplicated content is accounted for.
+       Usually, translating by -50% works if you've exactly doubled the array. */
+    transform: translateX(-50%); 
+  }
+}
+
+.pawnect-marquee-track {
+  display: flex;
+  width: max-content;
+  /* 40s determines the speed. Lower = faster. */
+  animation: marquee 40s linear infinite; 
+}
+
+/* Optional: Pause the animation when the user hovers over it */
+.pawnect-marquee:hover .pawnect-marquee-track {
+  animation-play-state: paused;
+}

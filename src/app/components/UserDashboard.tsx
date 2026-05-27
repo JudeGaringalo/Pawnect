@@ -16,10 +16,10 @@ export default function UserDashboard() {
   const navigate = useNavigate();
 
   const stats = [
-    { label: 'Active Reports', value: 2, icon: <FileText className="w-6 h-6" />, color: 'bg-blue-100 text-blue-700' },
-    { label: 'Saved Posts', value: 8, icon: <Bookmark className="w-6 h-6" />, color: 'bg-teal-100 text-teal-700' },
-    { label: 'Comments', value: 15, icon: <MessageCircle className="w-6 h-6" />, color: 'bg-purple-100 text-purple-700' },
-    { label: 'Reunited', value: 1, icon: <CheckCircle className="w-6 h-6" />, color: 'bg-emerald-100 text-emerald-700' },
+    { label: 'Active Reports', value: 2, icon: <FileText className="w-12 h-12" />, color: 'text-[#45556C]' },
+    { label: 'Saved Posts', value: 8, icon: <Bookmark className="w-12 h-12" />, color: 'text-[#45556C]' },
+    { label: 'Comments', value: 15, icon: <MessageCircle className="w-12 h-12" />, color: 'text-[#45556C]' },
+    { label: 'Reunited', value: 1, icon: <CheckCircle className="w-12 h-12" />, color: 'text-[#45556C]' },
   ];
 
   const myReports = [
@@ -104,7 +104,7 @@ export default function UserDashboard() {
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-6">
-              <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center text-white text-3xl font-bold">
+              <div className="w-24 h-24 rounded-2xl bg-[#263143] flex items-center justify-center text-white text-3xl font-bold">
                 MS
               </div>
               <div>
@@ -117,13 +117,24 @@ export default function UserDashboard() {
               </div>
             </div>
 
-            <button
-              onClick={() => navigate('/create-report')}
-              className="px-6 py-3 bg-gradient-to-r from-teal-600 to-emerald-600 text-white rounded-xl hover:shadow-lg transition-all flex items-center gap-2"
-            >
-              <Plus className="w-5 h-5" />
-              New Report
-            </button>
+            <div className="flex items-center gap-6"> 
+              <button
+                onClick={() => navigate('/create-report')}
+                className="px-8 py-3 bg-[#1F2937] text-white rounded-xl hover:shadow-lg transition-all flex items-center gap-2"
+              >
+                <Plus className="w-5 h-5" />
+                New Report
+              </button>
+              
+              <button
+                onClick={() => {
+                  console.log("User logged out");
+                }}
+                className="px-8 py-3 bg-white text-slate-600 border border-slate-200 rounded-xl hover:bg-slate-50 hover:text-slate-900 transition-all font-medium"
+              >
+                Log out
+              </button> 
+            </div>
           </div>
         </motion.div>
 
@@ -135,7 +146,7 @@ export default function UserDashboard() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
-              className="bg-white rounded-2xl border border-slate-200 p-6"
+              className="bg-white rounded-2xl border border-slate-200 py-6 px-8"
             >
               <div className="flex items-center justify-between">
                 <div>
@@ -157,7 +168,7 @@ export default function UserDashboard() {
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-2xl font-bold text-slate-900">My Reports</h2>
-                <button className="text-teal-600 hover:text-teal-700 font-medium">View All</button>
+                <button className="text-[#767F8B] hover:text-[#1F2937] font-medium">View All</button>
               </div>
 
               <div className="space-y-4">
@@ -217,7 +228,7 @@ export default function UserDashboard() {
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-2xl font-bold text-slate-900">Saved Posts</h2>
-                <button className="text-teal-600 hover:text-teal-700 font-medium">View All</button>
+                <button className="text-[#767F8B] hover:text-[#1F2937] font-medium">View All</button>
               </div>
 
               <div className="grid md:grid-cols-2 gap-4">
@@ -266,8 +277,8 @@ export default function UserDashboard() {
               <div className="space-y-4">
                 {recentActivity.map((activity, index) => (
                   <div key={index} className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center flex-shrink-0">
-                      <Bell className="w-4 h-4 text-teal-600" />
+                    <div className="w-8 h-8 rounded-full bg-[#D8E2F0] flex items-center justify-center flex-shrink-0">
+                      <Bell className="w-4 h-4 text-[#0F172B]" />
                     </div>
                     <div className="flex-1">
                       <p className="text-sm text-slate-700">{activity.text}</p>
@@ -289,23 +300,23 @@ export default function UserDashboard() {
               <div className="space-y-2">
                 <button
                   onClick={() => navigate('/create-report')}
-                  className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors text-left"
+                  className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-100 transition-colors text-left"
                 >
-                  <Plus className="w-5 h-5 text-teal-600" />
+                  <Plus className="w-5 h-5 text-[#263143]" />
                   <span className="text-sm font-medium text-slate-700">Create New Report</span>
                 </button>
                 <button
                   onClick={() => navigate('/map')}
-                  className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors text-left"
+                  className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-100 transition-colors text-left"
                 >
-                  <MapPin className="w-5 h-5 text-teal-600" />
+                  <MapPin className="w-5 h-5 text-[#263143]" />
                   <span className="text-sm font-medium text-slate-700">View Map</span>
                 </button>
                 <button
                   onClick={() => navigate('/reunited')}
-                  className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors text-left"
+                  className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-100 transition-colors text-left"
                 >
-                  <CheckCircle className="w-5 h-5 text-emerald-600" />
+                  <CheckCircle className="w-5 h-5 text-[#263143]" />
                   <span className="text-sm font-medium text-slate-700">Reunited Stories</span>
                 </button>
               </div>

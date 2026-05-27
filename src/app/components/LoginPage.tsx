@@ -2,6 +2,11 @@ import { useNavigate } from 'react-router';
 import { motion } from 'motion/react';
 import { MapPin } from 'lucide-react';
 
+const logoSrc =
+  "https://raw.githubusercontent.com/JudeGaringalo/Pawnect/refs/heads/main/public/images/logo.png";
+const favicon =
+  "https://raw.githubusercontent.com/JudeGaringalo/Pawnect/refs/heads/main/public/images/favicon.png";
+
 export default function LoginPage() {
   const navigate = useNavigate();
 
@@ -10,17 +15,20 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50/30 to-teal-50 flex items-center justify-center px-6">
+    <div className="min-h-screen bg-[#F8F5EF] from-sky-50 via-blue-50/30 to-teal-50 flex items-center justify-center px-6">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md"
       >
         <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 p-10">
-          {/* Logo */}
           <div className="flex items-center justify-center gap-3 mb-8">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center">
-              <MapPin className="w-7 h-7 text-white" />
+            <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-[0_2px_10px_rgba(0,0,0,0.08)]">
+              <img
+                src={favicon}
+                alt="Pawnect logo"
+                className="h-6 w-auto object-contain" 
+              />
             </div>
             <span className="text-2xl font-bold text-slate-900">Pawnect</span>
           </div>

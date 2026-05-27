@@ -6,10 +6,10 @@ export default function ReunitedCases() {
   const navigate = useNavigate();
 
   const stats = [
-    { label: 'Total Reunited', value: 89, icon: <CheckCircle className="w-6 h-6" /> },
-    { label: 'This Month', value: 23, icon: <TrendingUp className="w-6 h-6" /> },
-    { label: 'Avg. Time', value: '2.4 days', icon: <Clock className="w-6 h-6" /> },
-    { label: 'Success Rate', value: '73%', icon: <Heart className="w-6 h-6" /> },
+    { label: 'Total Reunited', value: 89, icon: <CheckCircle className="w-8 h-8" /> },
+    { label: 'This Month', value: 23, icon: <TrendingUp className="w-8 h-8" /> },
+    { label: 'Avg. Time', value: '2.4 days', icon: <Clock className="w-8 h-8" /> },
+    { label: 'Success Rate', value: '73%', icon: <Heart className="w-8 h-8" /> },
   ];
 
   const reunitedPets = [
@@ -94,7 +94,7 @@ export default function ReunitedCases() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-emerald-50 via-teal-50/30 to-white">
+    <div className="min-h-screen bg-[#F8FAFC]">
       <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-slate-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
@@ -116,7 +116,7 @@ export default function ReunitedCases() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
         >
-          <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center mx-auto mb-6">
+          <div className="w-20 h-20 bg-[#45556C] rounded-full flex items-center justify-center mx-auto mb-6">
             <CheckCircle className="w-10 h-10 text-white" />
           </div>
           <h1 className="text-5xl font-bold text-slate-900 mb-4">Success Stories</h1>
@@ -133,9 +133,9 @@ export default function ReunitedCases() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className="bg-white rounded-2xl border border-emerald-200 p-6 text-center"
+              className="bg-white rounded-2xl border border-[#62748E] p-6 text-center"
             >
-              <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center mx-auto mb-4">
+              <div className="w-14 h-14 bg-[#E8F1FF] text-[#565656] rounded-xl flex items-center justify-center mx-auto mb-4">
                 {stat.icon}
               </div>
               <div className="text-3xl font-bold text-slate-900 mb-1">{stat.value}</div>
@@ -152,7 +152,7 @@ export default function ReunitedCases() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className="bg-white rounded-3xl border border-emerald-200 overflow-hidden hover:shadow-2xl transition-all"
+              className="bg-white rounded-3xl border border-[#62748E] overflow-hidden hover:shadow-2xl transition-all"
             >
               <div className="grid md:grid-cols-5 gap-6 p-8">
                 {/* Image */}
@@ -172,13 +172,13 @@ export default function ReunitedCases() {
                 <div className="md:col-span-3">
                   <div className="flex items-start justify-between mb-4">
                     <div>
-                      <h2 className="text-3xl font-bold text-slate-900 mb-2">{pet.name}</h2>
+                      <h2 className="text-3xl font-bold text-[#0F172B] mb-2">{pet.name}</h2>
                       <p className="text-lg text-slate-600">
                         {pet.type} • {pet.breed}
                       </p>
                     </div>
                     <div className="text-right">
-                      <div className="text-2xl font-bold text-emerald-600 mb-1">
+                      <div className="text-2xl font-bold text-[#565656] mb-1">
                         {pet.timeToReunite}
                       </div>
                       <div className="text-sm text-slate-500">to reunite</div>
@@ -196,13 +196,13 @@ export default function ReunitedCases() {
                     </div>
                   </div>
 
-                  <div className="bg-emerald-50 rounded-xl p-4 mb-6">
+                  <div className="bg-[#EDF4FF] rounded-xl p-4 mb-6">
                     <p className="text-slate-700 leading-relaxed">{pet.story}</p>
                   </div>
 
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center text-white font-semibold">
+                      <div className="w-10 h-10 rounded-full bg-[#C28A45] flex items-center justify-center text-white font-semibold">
                         {pet.owner
                           .split(' ')
                           .map((n) => n[0])
@@ -216,7 +216,7 @@ export default function ReunitedCases() {
 
                     <button
                       onClick={() => navigate(`/post/${pet.id}`)}
-                      className="px-6 py-3 bg-gradient-to-r from-teal-600 to-emerald-600 text-white rounded-xl hover:shadow-lg transition-all font-medium"
+                      className="px-6 py-3 bg-[#45556C] text-white rounded-xl hover:bg-[#314158] hover:shadow-lg transition-all font-medium"
                     >
                       View Full Story
                     </button>
@@ -231,17 +231,17 @@ export default function ReunitedCases() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mt-16 bg-gradient-to-br from-teal-600 to-emerald-600 rounded-3xl p-12 text-center text-white"
+          className="mt-16 bg-[#263143] rounded-3xl p-12 text-center text-white"
         >
           <Heart className="w-16 h-16 mx-auto mb-6" />
           <h2 className="text-3xl font-bold mb-4">Together, We Make a Difference</h2>
-          <p className="text-xl text-teal-100 mb-8 max-w-2xl mx-auto">
+          <p className="text-xl mb-8 max-w-2xl mx-auto">
             Every reunion is made possible by our caring community. Thank you for helping pets find
             their way home.
           </p>
           <button
             onClick={() => navigate('/create-report')}
-            className="px-8 py-4 bg-white text-teal-700 rounded-full font-medium hover:shadow-xl transition-all"
+            className="px-16 py-4 bg-white text-[#263143] rounded-full font-bold hover:bg-[#EDF4FF] hover:shadow-xl transition-all"
           >
             Help Another Pet Today
           </button>

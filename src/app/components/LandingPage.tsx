@@ -4,8 +4,12 @@ import { motion } from "motion/react";
 
 const logoSrc =
   "https://raw.githubusercontent.com/JudeGaringalo/Pawnect/refs/heads/main/public/images/logo.png";
+
 const favicon =
   "https://raw.githubusercontent.com/JudeGaringalo/Pawnect/refs/heads/main/public/images/favicon.png";
+
+const heroImageSrc =
+  "https://raw.githubusercontent.com/JudeGaringalo/Pawnect/refs/heads/main/public/images/header-image.png";
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -16,7 +20,6 @@ export default function LandingPage() {
     { label: "Cases", href: "#cases" },
     { label: "How it works", href: "#how-it-works" },
     { label: "Product", href: "#product" },
-    { label: "Safety", href: "#safety" },
     { label: "Team", href: "#team" },
   ];
 
@@ -125,11 +128,33 @@ export default function LandingPage() {
     {
       name: "Lester Jude Garingalo",
       role: "Full-Stack Developer",
+      image:
+        "https://github.com/JudeGaringalo/Pawnect/blob/main/public/images/Jude.webp?raw=true",
     },
-    { name: "Andrea Sai Malicdem", role: "Documentation" },
-    { name: "Cornelius James Lasala", role: "Documentation" },
-    { name: "Ruy Inigo Fajutagana", role: "Documentation" },
-    { name: "Carlvin Cabug-os", role: "Documentation" },
+    {
+      name: "Andrea Sai Malicdem",
+      role: "Documentation",
+      image:
+        "https://github.com/JudeGaringalo/Pawnect/blob/main/public/images/Sai.webp?raw=true",
+    },
+    {
+      name: "Cornelius James Lasala",
+      role: "Documentation",
+      image:
+        "https://raw.githubusercontent.com/JudeGaringalo/Pawnect/refs/heads/main/public/images/Bam.webp",
+    },
+    {
+      name: "Ruy Inigo Fajutagana",
+      role: "Documentation",
+      image:
+        "https://github.com/JudeGaringalo/Pawnect/blob/main/public/images/Ruy.webp?raw=true",
+    },
+    {
+      name: "Carlvin Cabug-os",
+      role: "Documentation",
+      image:
+        "https://raw.githubusercontent.com/JudeGaringalo/Pawnect/refs/heads/main/public/images/Carlvin.jpg",
+    },
   ];
 
   const getInitials = (name: string) =>
@@ -164,8 +189,10 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-[#f4efe5] text-[#15120f] selection:bg-[#ff6b35] selection:text-white">
+    <div className="min-h-screen overflow-x-hidden bg-[#F8F5EF] font-['Nunito',sans-serif] text-[#1F2937] selection:bg-[#C28A45] selection:text-white">
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Parkinsans:wght@400;500;600;700;800&display=swap');
+
         @keyframes pawnectMarquee {
           from { transform: translate3d(0, 0, 0); }
           to { transform: translate3d(-50%, 0, 0); }
@@ -187,8 +214,8 @@ export default function LandingPage() {
         }
       `}</style>
 
-      <nav className="fixed left-0 right-0 top-0 z-50 px-3 pt-3 sm:px-5">
-        <div className="mx-auto flex h-[66px] max-w-[1500px] items-center justify-between rounded-full border border-black/10 bg-white/45 px-4 shadow-[0_18px_60px_rgba(0,0,0,0.10)] backdrop-blur-2xl sm:px-5 lg:px-6">
+      <nav className="fixed left-0 right-0 top-0 z-50 px-4 pt-4 sm:px-6">
+        <div className="mx-auto flex h-[64px] max-w-[1280px] items-center justify-between rounded-full border border-[#1F2937]/10 bg-white/78 px-4 shadow-[0_18px_60px_rgba(31,41,55,0.10)] backdrop-blur-2xl sm:px-5">
           <button
             type="button"
             onClick={() =>
@@ -196,15 +223,16 @@ export default function LandingPage() {
             }
             className="flex items-center gap-3"
           >
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/80 shadow-sm">
+            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm">
               <img
                 src={favicon}
                 alt="Pawnect logo"
                 className="h-6 w-auto object-contain"
               />
             </span>
-            <span className="hidden text-[11px] font-semibold uppercase tracking-[0.18em] text-black/72 md:block">
-              Pet recovery system
+
+            <span className="hidden text-[11px] font-semibold uppercase tracking-[0.2em] text-[#1F2937]/62 md:block">
+              Pawnect
             </span>
           </button>
 
@@ -213,7 +241,7 @@ export default function LandingPage() {
               <a
                 key={nav.label}
                 href={nav.href}
-                className="text-[13px] font-semibold text-black/68 transition-colors hover:text-black"
+                className="text-[13px] font-medium text-[#1F2937]/58 transition-colors hover:text-[#1F2937]"
               >
                 {nav.label}
               </a>
@@ -224,14 +252,15 @@ export default function LandingPage() {
             <button
               type="button"
               onClick={goToLogin}
-              className="hidden text-[13px] font-semibold text-black/68 transition-colors hover:text-black sm:block"
+              className="hidden text-[13px] font-medium text-[#1F2937]/58 transition-colors hover:text-[#1F2937] sm:block"
             >
               Log in
             </button>
+
             <button
               type="button"
               onClick={goToLogin}
-              className="rounded-full bg-[#15120f] px-5 py-2.5 text-[13px] font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-[#2b251f]"
+              className="rounded-full bg-[#263143] px-5 py-2.5 text-[13px] font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-[#334155]"
             >
               Start a report
             </button>
@@ -241,195 +270,82 @@ export default function LandingPage() {
 
       <main>
         {/* HERO */}
-        <section className="px-3 pb-8 pt-[92px] sm:px-4 md:px-6">
-          <div className="mx-auto max-w-[1500px]">
-            <div className="relative min-h-[calc(100svh-112px)] overflow-hidden rounded-[28px] bg-[#181410] sm:rounded-[42px]">
-              <div className="absolute inset-0 bg-[linear-gradient(115deg,rgba(244,239,229,0.12),transparent_38%),radial-gradient(circle_at_78%_18%,rgba(255,107,53,0.30),transparent_30%)]" />
-              <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/45 to-transparent" />
-
-              <div className="relative z-10 grid min-h-[calc(100svh-112px)] lg:grid-cols-[1.02fr_0.98fr]">
-                <div className="flex flex-col justify-between p-6 text-white sm:p-9 lg:p-12 xl:p-16">
-                  <motion.div
-                    initial="hidden"
-                    animate="show"
-                    variants={fadeUp}
-                    className="flex max-w-md items-start gap-4"
-                  >
-                    <span className="mt-1 h-2.5 w-2.5 rounded-full bg-[#ff6b35]" />
-                    <p className="text-sm leading-relaxed text-white/58">
-                      A calmer, more organized way for owners,
-                      finders, and communities to act when a pet
-                      goes missing.
-                    </p>
-                  </motion.div>
-
-                  <motion.div
-                    initial="hidden"
-                    animate="show"
-                    variants={stagger}
-                    className="mt-20 max-w-[720px] lg:mt-0"
-                  >
-                    <motion.p
-                      variants={item}
-                      className="mb-7 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#ffb39a]"
-                    >
-                      Pawnect
-                    </motion.p>
-                    <motion.h1
-                      variants={item}
-                      className="font-serif text-[clamp(2.8rem,6.8vw,6rem)] font-medium leading-[1.1] tracking-[-0.04em]"
-                    >
-                      Bring them back into reach.
-                    </motion.h1>
-                    <motion.div
-                      variants={item}
-                      className="mt-9 max-w-2xl border-l border-white/18 pl-5 sm:mt-10 sm:pl-7"
-                    >
-                      <p className="text-base leading-relaxed text-white/66 sm:text-xl">
-                        Pawnect turns lost and found pet posts
-                        into searchable local cases — with
-                        location, status, sightings, and updates
-                        in one place.
-                      </p>
-                    </motion.div>
-                    <motion.div
-                      variants={item}
-                      className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center"
-                    >
-                      <button
-                        type="button"
-                        onClick={goToLogin}
-                        className="rounded-full bg-[#ff6b35] px-7 py-4 text-sm font-semibold text-white transition-all hover:-translate-y-1 hover:bg-[#ef5f2b]"
-                      >
-                        Report a pet
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          document
-                            .getElementById("cases")
-                            ?.scrollIntoView({
-                              behavior: "smooth",
-                            })
-                        }
-                        className="rounded-full border border-white/18 px-7 py-4 text-sm font-semibold text-white/78 transition-all hover:-translate-y-1 hover:border-white/34 hover:text-white"
-                      >
-                        View sample cases
-                      </button>
-                    </motion.div>
-                  </motion.div>
-                </div>
-
-                <div className="relative flex min-h-[620px] items-end p-4 sm:p-7 lg:min-h-full lg:p-10">
-                  <motion.div
-                    initial={{
-                      opacity: 0,
-                      y: 34,
-                      rotate: -1.5,
-                    }}
-                    animate={{ opacity: 1, y: 0, rotate: -1.5 }}
-                    transition={{
-                      duration: 0.85,
-                      ease: [0.16, 1, 0.3, 1],
-                    }}
-                    className="relative mx-auto w-full max-w-[620px] rounded-[30px] border border-white/12 bg-[#f4efe5] p-3 shadow-[0_40px_120px_rgba(0,0,0,0.34)] sm:rounded-[38px] sm:p-4"
-                  >
-                    <div className="overflow-hidden rounded-[24px] bg-[#fffaf2] sm:rounded-[30px]">
-                      <div className="flex items-center justify-between border-b border-black/8 px-5 py-4">
-                        <div>
-                          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-black/35">
-                            Active case
-                          </p>
-                          <h2 className="mt-2 text-xl font-semibold leading-snug tracking-[-0.03em] text-black">
-                            Luna · Golden Retriever
-                          </h2>
-                        </div>
-                        <span className="rounded-full bg-[#ff6b35]/12 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#d94f21]">
-                          Lost
-                        </span>
-                      </div>
-
-                      <div className="grid gap-3 p-3 sm:grid-cols-[0.9fr_1.1fr]">
-                        <div className="relative min-h-[340px] overflow-hidden rounded-[22px] bg-[#e8ded1]">
-                          <img
-                            src="https://images.unsplash.com/photo-1552053831-71594a27632d?w=760&h=980&fit=crop"
-                            alt="Golden Retriever"
-                            className="absolute inset-0 h-full w-full object-cover"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-transparent" />
-                          <div className="absolute bottom-4 left-4 right-4 rounded-2xl bg-white/82 p-4 backdrop-blur-xl">
-                            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-black/40">
-                              Last seen
-                            </p>
-                            <p className="mt-2 text-sm font-semibold leading-snug text-black">
-                              Barangay Hall, Quezon City
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="space-y-3">
-                          <div className="rounded-[22px] bg-[#181410] p-5 text-white">
-                            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/35">
-                              Case timeline
-                            </p>
-                            <div className="mt-5 space-y-5">
-                              {[
-                                [
-                                  "12 min",
-                                  "Report created with photo and last-seen area.",
-                                ],
-                                [
-                                  "19 min",
-                                  "Nearby users notified in the same city.",
-                                ],
-                                [
-                                  "31 min",
-                                  "Possible sighting added near a main road.",
-                                ],
-                              ].map(([time, copy]) => (
-                                <div
-                                  key={copy}
-                                  className="grid grid-cols-[54px_1fr] gap-3"
-                                >
-                                  <p className="text-xs font-semibold text-[#ffb39a]">
-                                    {time}
-                                  </p>
-                                  <p className="text-sm leading-relaxed text-white/62">
-                                    {copy}
-                                  </p>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-
-                          <div className="rounded-[22px] border border-black/8 bg-white p-5">
-                            <div className="mb-4 flex items-center justify-between">
-                              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-black/35">
-                                Possible match
-                              </p>
-                              <span className="h-2 w-2 rounded-full bg-[#ff6b35]" />
-                            </div>
-                            <p className="text-sm leading-relaxed text-black/64">
-                              Similar dog reported near Pasig
-                              yesterday. Photo and collar color
-                              need owner confirmation.
-                            </p>
-                          </div>
-
-                          <button
-                            type="button"
-                            onClick={goToLogin}
-                            className="w-full rounded-[18px] bg-[#15120f] px-5 py-4 text-sm font-semibold text-white transition-all hover:bg-[#2b251f]"
-                          >
-                            Open case
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
-                </div>
+        <section className="px-4 pb-14 pt-[138px] sm:px-6 lg:pb-20">
+          <div className="mx-auto max-w-[1320px]">
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                duration: 0.75,
+                ease: [0.16, 1, 0.3, 1],
+              }}
+              className="relative flex min-h-[520px] w-full flex-col justify-center overflow-hidden rounded-[32px] bg-gradient-to-r from-[#242E3F] via-[#3B4C66] to-[#687E9F] shadow-[0_24px_70px_rgba(31,41,55,0.22)] sm:min-h-[560px] lg:min-h-[600px]"
+            >
+              <div className="absolute inset-y-0 right-0 w-[90%] md:w-[85%] lg:w-[75%]">
+                <img
+                  src={heroImageSrc}
+                  alt="Woman hugging a golden retriever"
+                  className="h-full w-full object-cover object-[right_top]"
+                  style={{
+                    WebkitMaskImage:
+                      "linear-gradient(to right, transparent 0%, black 20%)",
+                    maskImage:
+                      "linear-gradient(to right, transparent 0%, black 20%)",
+                  }}
+                />
               </div>
-            </div>
+
+              {/* Content Container - Anchored to the left */}
+              <div className="relative z-10 w-full max-w-[640px] px-7 py-12 sm:px-12 lg:px-16">
+                <motion.div
+                  initial="hidden"
+                  animate="show"
+                  variants={stagger}
+                  className="text-white"
+                >
+                  <motion.p
+                    variants={item}
+                    className="mb-6 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#D8B47E]"
+                  >
+                    Pawnect
+                  </motion.p>
+
+                  <motion.h1
+                    variants={item}
+                    className="font-['Parkinsans',sans-serif] text-[4rem] font-semi leading-[1.05] tracking-tight"
+                  >
+                    Bring them back into reach
+                  </motion.h1>
+
+                  <motion.div
+                    variants={item}
+                    className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center"
+                  >
+                    <button
+                      type="button"
+                      onClick={goToLogin}
+                      className="rounded-[30px] bg-[#C28A45] px-8 py-4 text-[15px] font-semibold text-white transition-all hover:-translate-y-1 hover:bg-[#A87435] hover:shadow-lg"
+                    >
+                      Report a pet
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        document
+                          .getElementById("cases")
+                          ?.scrollIntoView({
+                            behavior: "smooth",
+                          })
+                      }
+                      className="rounded-[30px] border border-white/20 bg-white/[0.03] px-8 py-4 text-[15px] font-semibold text-white/90 transition-all hover:-translate-y-1 hover:border-white/40 hover:bg-white/10 hover:text-white"
+                    >
+                      View sample cases
+                    </button>
+                  </motion.div>
+                </motion.div>
+              </div>
+            </motion.div>
           </div>
         </section>
 
@@ -441,22 +357,24 @@ export default function LandingPage() {
               whileInView="show"
               viewport={{ once: true }}
               variants={fadeUp}
-              className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#ff6b35]"
+              className="text-[28px] font-semibold uppercase tracking-[0.28em] text-[#C28A45]"
             >
               Why it exists
             </motion.p>
+
             <motion.div
               initial="hidden"
               whileInView="show"
               viewport={{ once: true }}
               variants={fadeUp}
             >
-              <h2 className="font-serif text-[clamp(2rem,4vw,4rem)] font-medium leading-[1.16] tracking-[-0.032em]">
+              <h2 className="font-['Parkinsans',sans-serif] text-[clamp(2rem,4vw,4rem)] font-semibold leading-[1.16] tracking-[-0.032em] text-[#1F2937]">
                 When a pet is missing, people do not need
                 another feed. They need a clearer way to
                 coordinate.
               </h2>
-              <p className="mt-9 max-w-3xl text-base leading-relaxed text-black/56 sm:text-lg">
+
+              <p className="mt-9 max-w-3xl text-base leading-relaxed text-[#1F2937]/56 sm:text-lg">
                 Pawnect is designed around the real recovery
                 journey: report what happened, make the case
                 searchable, collect sightings, reduce duplicate
@@ -471,24 +389,26 @@ export default function LandingPage() {
           id="cases"
           className="px-3 py-10 sm:px-4 md:px-6"
         >
-          <div className="mx-auto max-w-[1500px] rounded-[28px] bg-[#fffaf2] p-4 shadow-[0_24px_90px_rgba(0,0,0,0.05)] sm:rounded-[42px] sm:p-6 lg:p-9">
+          <div className="mx-auto max-w-[1500px] rounded-[28px] bg-[#FFFFFF] p-4 shadow-[0_24px_90px_rgba(31,41,55,0.06)] sm:rounded-[42px] sm:p-6 lg:p-9">
             <div className="grid gap-4 lg:grid-cols-[0.85fr_1.15fr]">
               <motion.div
                 initial="hidden"
                 whileInView="show"
                 viewport={{ once: true, margin: "-100px" }}
                 variants={fadeUp}
-                className="flex min-h-[560px] flex-col justify-between rounded-[26px] bg-[#15120f] p-7 text-white sm:rounded-[34px] sm:p-10"
+                className="flex min-h-[560px] flex-col justify-between rounded-[26px] bg-[#263143] p-7 text-white sm:rounded-[34px] sm:p-10"
               >
                 <div>
-                  <p className="mb-7 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#ffb39a]">
+                  <p className="mb-7 text-[28px] font-semibold uppercase tracking-[0.28em] text-[#F0D7B0]">
                     Live case board
                   </p>
-                  <h2 className="max-w-2xl font-serif text-[clamp(2rem,4.2vw,4.2rem)] font-medium leading-[1.14] tracking-[-0.035em]">
+
+                  <h2 className="font-['Parkinsans',sans-serif] max-w-2xl text-[clamp(2rem,4.2vw,4.2rem)] font-semibold leading-[1.14] tracking-[-0.035em]">
                     Urgent details, without the noise.
                   </h2>
                 </div>
-                <p className="max-w-lg text-base leading-relaxed text-white/58 sm:text-lg">
+
+                <p className="max-w-lg text-base leading-relaxed text-white/62 sm:text-lg">
                   Each case is built for scanning: animal photo,
                   status, location, update time, and the most
                   useful note stay visible first.
@@ -506,31 +426,37 @@ export default function LandingPage() {
                   <motion.article
                     key={`${report.name}-${report.type}`}
                     variants={item}
-                    className="group overflow-hidden rounded-[28px] bg-[#f4efe5] shadow-[0_16px_50px_rgba(0,0,0,0.06)] transition-all hover:-translate-y-1 hover:shadow-[0_26px_80px_rgba(0,0,0,0.10)]"
+                    className="group overflow-hidden rounded-[28px] bg-[#F8F5EF] shadow-[0_16px_50px_rgba(31,41,55,0.06)] transition-all hover:-translate-y-1 hover:shadow-[0_26px_80px_rgba(31,41,55,0.10)]"
                   >
-                    <div className="relative h-[360px] overflow-hidden bg-[#dfd5c8] sm:h-[440px] lg:h-full lg:min-h-[560px]">
+                    <div className="relative h-[360px] overflow-hidden bg-[#ECE7DE] sm:h-[440px] lg:h-full lg:min-h-[560px]">
                       <img
                         src={report.image}
                         alt={`${report.name} ${report.type} pet`}
                         className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/76 via-black/18 to-transparent" />
+
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#1F2937]/78 via-[#1F2937]/18 to-transparent" />
+
                       <div className="absolute left-4 right-4 top-4 flex items-center justify-between gap-3">
-                        <p className="rounded-full bg-white/82 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-black backdrop-blur-xl">
+                        <p className="rounded-full bg-white/86 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#1F2937] backdrop-blur-xl">
                           {report.detail}
                         </p>
                       </div>
+
                       <div className="absolute bottom-4 left-4 right-4">
-                        <h3 className="mb-4 font-serif text-4xl font-medium leading-none tracking-[-0.055em] text-white">
+                        <h3 className="font-['Parkinsans',sans-serif] mb-4 text-4xl font-semibold leading-none tracking-[-0.055em] text-white">
                           {report.name}
                         </h3>
-                        <p className="mb-5 text-sm leading-relaxed text-white/72">
+
+                        <p className="mb-5 text-sm leading-relaxed text-white/74">
                           {report.note}
                         </p>
+
                         <div className="flex items-center justify-between gap-3">
-                          <span className="rounded-full bg-[#ff6b35] px-3.5 py-2 text-[10px] font-semibold uppercase tracking-[0.17em] text-white">
+                          <span className="rounded-full bg-[#C28A45] px-3.5 py-2 text-[10px] font-semibold uppercase tracking-[0.17em] text-white">
                             {report.type}
                           </span>
+
                           <span className="rounded-full bg-white/18 px-3.5 py-2 text-[10px] font-semibold uppercase tracking-[0.17em] text-white backdrop-blur-xl">
                             {report.time}
                           </span>
@@ -557,10 +483,11 @@ export default function LandingPage() {
               variants={fadeUp}
               className="mb-16 max-w-4xl"
             >
-              <p className="mb-7 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#ff6b35]">
+              <p className="mb-7 text-[28px] font-semibold uppercase tracking-[0.28em] text-[#C28A45]">
                 How it works
               </p>
-              <h2 className="font-serif text-[clamp(2rem,4.2vw,4.2rem)] font-medium leading-[1.16] tracking-[-0.035em]">
+
+              <h2 className="font-['Parkinsans',sans-serif] text-[clamp(2rem,4.2vw,4.2rem)] font-semibold leading-[1.16] tracking-[-0.035em] text-[#1F2937]">
                 Designed for the first hour of searching.
               </h2>
             </motion.div>
@@ -570,7 +497,7 @@ export default function LandingPage() {
               whileInView="show"
               viewport={{ once: true, margin: "-100px" }}
               variants={stagger}
-              className="border-y border-black/10"
+              className="border-y border-[#1F2937]/10"
             >
               {process.map((step, index) => {
                 const isOpen = openStep === index;
@@ -579,17 +506,18 @@ export default function LandingPage() {
                   <motion.article
                     key={step.title}
                     variants={item}
-                    className="border-b border-black/10 last:border-b-0"
+                    className="border-b border-[#1F2937]/10 last:border-b-0"
                   >
                     <div className="grid w-full gap-5 py-8 text-left md:grid-cols-[0.22fr_1fr_56px] md:items-start lg:py-10">
-                      <p className="font-serif text-4xl font-medium tracking-[-0.05em] text-black/18 sm:text-5xl">
+                      <p className="text-4xl font-semibold tracking-[-0.05em] text-[#1F2937]/18 sm:text-5xl">
                         {step.step}
                       </p>
 
                       <div className="max-w-3xl">
-                        <h3 className="text-2xl font-semibold leading-snug tracking-[-0.03em] text-black sm:text-3xl">
+                        <h3 className="font-['Parkinsans',sans-serif] text-2xl font-semibold leading-snug tracking-[-0.03em] text-[#1F2937] sm:text-3xl">
                           {step.title}
                         </h3>
+
                         <motion.p
                           initial={false}
                           animate={{
@@ -601,7 +529,7 @@ export default function LandingPage() {
                             duration: 0.34,
                             ease: [0.16, 1, 0.3, 1],
                           }}
-                          className="overflow-hidden text-base leading-relaxed text-black/56 sm:text-lg"
+                          className="overflow-hidden text-base leading-relaxed text-[#1F2937]/56 sm:text-lg"
                         >
                           {step.copy}
                         </motion.p>
@@ -613,7 +541,7 @@ export default function LandingPage() {
                           setOpenStep(isOpen ? -1 : index)
                         }
                         aria-label={`${isOpen ? "Collapse" : "Expand"} ${step.title}`}
-                        className="flex h-12 w-12 items-center justify-center rounded-full border border-black/12 text-2xl font-light text-black transition-all hover:border-[#ff6b35] hover:bg-[#ff6b35] hover:text-white md:justify-self-end"
+                        className="flex h-12 w-12 items-center justify-center rounded-full border border-[#1F2937]/12 text-2xl font-light text-[#1F2937] transition-all hover:border-[#C28A45] hover:bg-[#C28A45] hover:text-white md:justify-self-end"
                       >
                         {isOpen ? "−" : "+"}
                       </button>
@@ -630,7 +558,7 @@ export default function LandingPage() {
           id="product"
           className="px-3 py-10 sm:px-4 md:px-6"
         >
-          <div className="mx-auto max-w-[1500px] overflow-hidden rounded-[28px] bg-[#15120f] text-white sm:rounded-[42px]">
+          <div className="mx-auto max-w-[1500px] overflow-hidden rounded-[28px] bg-[#263143] text-white sm:rounded-[42px]">
             <div className="grid gap-10 p-7 sm:p-10 lg:grid-cols-[0.78fr_1.22fr] lg:p-14">
               <motion.div
                 initial="hidden"
@@ -640,14 +568,16 @@ export default function LandingPage() {
                 className="flex flex-col justify-between"
               >
                 <div>
-                  <p className="mb-7 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#ffb39a]">
+                  <p className="mb-7 text-[28px] font-semibold uppercase tracking-[0.28em] text-[#F0D7B0]">
                     Product system
                   </p>
-                  <h2 className="font-serif text-[clamp(2rem,4.2vw,4.2rem)] font-medium leading-[1.16] tracking-[-0.035em]">
+
+                  <h2 className="font-['Parkinsans',sans-serif] text-[clamp(2rem,4.2vw,4.2rem)] font-semibold leading-[1.16] tracking-[-0.035em]">
                     Not a post. A recovery case.
                   </h2>
                 </div>
-                <p className="mt-9 max-w-xl text-base leading-relaxed text-white/58 sm:text-lg lg:mt-20">
+
+                <p className="mt-9 max-w-xl text-base leading-relaxed text-white/62 sm:text-lg lg:mt-20">
                   The product is made of connected recovery
                   tools — reporting, search, map context,
                   updates, matching, and moderation — moving as
@@ -655,9 +585,10 @@ export default function LandingPage() {
                 </p>
               </motion.div>
 
-              <div className="pawnect-marquee relative overflow-hidden rounded-[28px] border border-white/10 bg-[#211b16] py-5">
-                <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-[#211b16] to-transparent" />
-                <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-[#211b16] to-transparent" />
+              <div className="pawnect-marquee relative overflow-hidden rounded-[28px] border border-white/10 bg-[#1E293B] py-5">
+                <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-[#1E293B] to-transparent" />
+                <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-[#1E293B] to-transparent" />
+
                 <div className="pawnect-marquee-track flex w-max gap-4 px-4">
                   {marqueeFeatures.map((feature, index) => (
                     <article
@@ -670,17 +601,20 @@ export default function LandingPage() {
                           alt={feature.title}
                           className="h-full w-full object-cover opacity-90 transition-transform duration-700 group-hover:scale-105"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#15120f]/70 via-transparent to-transparent" />
-                        <p className="absolute left-4 top-4 rounded-full bg-black/35 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#ffb39a] backdrop-blur-xl">
+
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#263143]/70 via-transparent to-transparent" />
+
+                        <p className="absolute left-4 top-4 rounded-full bg-black/35 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#F0D7B0] backdrop-blur-xl">
                           F.0{(index % features.length) + 1}
                         </p>
                       </div>
 
                       <div className="flex h-[214px] flex-col justify-between p-6 sm:p-7">
-                        <h3 className="text-xl font-semibold leading-tight tracking-[-0.03em] text-white sm:text-2xl">
+                        <h3 className="font-['Parkinsans',sans-serif] text-xl font-semibold leading-tight tracking-[-0.03em] text-white sm:text-2xl">
                           {feature.title}
                         </h3>
-                        <p className="text-sm leading-relaxed text-white/52">
+
+                        <p className="text-sm leading-relaxed text-white/56">
                           {feature.copy}
                         </p>
                       </div>
@@ -701,14 +635,16 @@ export default function LandingPage() {
               viewport={{ once: true }}
               variants={fadeUp}
             >
-              <p className="mb-7 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#ff6b35]">
+              <p className="mb-7 text-[28px] font-semibold uppercase tracking-[0.28em] text-[#C28A45]">
                 Location context
               </p>
-              <h2 className="font-serif text-[clamp(2rem,4vw,4rem)] font-medium leading-[1.16] tracking-[-0.032em]">
+
+              <h2 className="font-['Parkinsans',sans-serif] text-[clamp(2rem,4vw,4rem)] font-semibold leading-[1.16] tracking-[-0.032em] text-[#1F2937]">
                 The map is not decoration. It is the search
                 surface.
               </h2>
-              <p className="mt-9 max-w-xl text-base leading-relaxed text-black/56 sm:text-lg">
+
+              <p className="mt-9 max-w-xl text-base leading-relaxed text-[#1F2937]/56 sm:text-lg">
                 Lost pet recovery is local. Pawnect makes area,
                 time, and movement visible so users can
                 understand where attention is needed.
@@ -723,36 +659,41 @@ export default function LandingPage() {
                 duration: 0.75,
                 ease: [0.16, 1, 0.3, 1],
               }}
-              className="rounded-[32px] bg-[#fffaf2] p-3 shadow-[0_26px_90px_rgba(0,0,0,0.08)]"
+              className="rounded-[32px] bg-[#FFFFFF] p-3 shadow-[0_26px_90px_rgba(31,41,55,0.08)]"
             >
-              <div className="overflow-hidden rounded-[26px] border border-black/8 bg-[#191612]">
+              <div className="overflow-hidden rounded-[26px] border border-[#1F2937]/8 bg-[#1E293B]">
                 <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
                   <div>
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/35">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/38">
                       Map view
                     </p>
-                    <h3 className="mt-2 text-xl font-semibold leading-snug tracking-[-0.03em] text-white">
+
+                    <h3 className="font-['Parkinsans',sans-serif] mt-2 text-xl font-semibold leading-snug tracking-[-0.03em] text-white">
                       Nearby reports
                     </h3>
                   </div>
+
                   <button
                     type="button"
                     onClick={goToLogin}
-                    className="rounded-full bg-white px-4 py-2 text-xs font-semibold text-black"
+                    className="rounded-full bg-white px-4 py-2 text-xs font-semibold text-[#1F2937]"
                   >
                     Open
                   </button>
                 </div>
 
-                <div className="relative h-[480px] bg-[linear-gradient(135deg,#22322f,#111817)]">
+                <div className="relative h-[480px] bg-[linear-gradient(135deg,#334155,#111827)]">
                   <div className="absolute inset-0 opacity-25 [background-image:linear-gradient(rgba(255,255,255,.12)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.12)_1px,transparent_1px)] [background-size:48px_48px]" />
-                  <div className="absolute left-[21%] top-[32%] h-5 w-5 rounded-full bg-[#ff6b35] ring-[18px] ring-[#ff6b35]/20" />
+
+                  <div className="absolute left-[21%] top-[32%] h-5 w-5 rounded-full bg-[#C28A45] ring-[18px] ring-[#C28A45]/20" />
                   <div className="absolute left-[63%] top-[26%] h-4 w-4 rounded-full bg-white ring-[14px] ring-white/15" />
-                  <div className="absolute left-[54%] top-[66%] h-4 w-4 rounded-full bg-[#ffb39a] ring-[14px] ring-[#ffb39a]/18" />
-                  <div className="absolute bottom-5 left-5 right-5 rounded-[24px] border border-white/12 bg-black/52 p-5 backdrop-blur-xl">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#ffb39a]">
+                  <div className="absolute left-[54%] top-[66%] h-4 w-4 rounded-full bg-[#F0D7B0] ring-[14px] ring-[#F0D7B0]/18" />
+
+                  <div className="absolute bottom-5 left-5 right-5 rounded-[24px] border border-white/12 bg-black/48 p-5 backdrop-blur-xl">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#F0D7B0]">
                       Search radius
                     </p>
+
                     <div className="mt-5 grid gap-4 sm:grid-cols-3">
                       {[
                         ["3", "active reports"],
@@ -760,10 +701,11 @@ export default function LandingPage() {
                         ["6", "recent sightings"],
                       ].map(([value, label]) => (
                         <div key={label}>
-                          <p className="font-serif text-4xl tracking-[-0.06em] text-white">
+                          <p className="text-4xl tracking-[-0.06em] text-white">
                             {value}
                           </p>
-                          <p className="mt-1 text-xs text-white/44">
+
+                          <p className="mt-1 text-xs text-white/46">
                             {label}
                           </p>
                         </div>
@@ -781,7 +723,7 @@ export default function LandingPage() {
           id="safety"
           className="px-3 py-10 sm:px-4 md:px-6"
         >
-          <div className="mx-auto max-w-[1500px] rounded-[28px] bg-[#fffaf2] p-6 sm:rounded-[42px] sm:p-10 lg:p-14">
+          <div className="mx-auto max-w-[1500px] rounded-[28px] bg-[#FFFFFF] p-6 sm:rounded-[42px] sm:p-10 lg:p-14">
             <div className="grid gap-12 lg:grid-cols-[0.86fr_1.14fr] lg:items-start">
               <motion.div
                 initial="hidden"
@@ -789,10 +731,11 @@ export default function LandingPage() {
                 viewport={{ once: true }}
                 variants={fadeUp}
               >
-                <p className="mb-7 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#ff6b35]">
+                <p className="mb-7 text-[28px] font-semibold uppercase tracking-[0.28em] text-[#C28A45]">
                   Trust and safety
                 </p>
-                <h2 className="font-serif text-[clamp(2rem,4vw,4rem)] font-medium leading-[1.16] tracking-[-0.032em]">
+
+                <h2 className="font-['Parkinsans',sans-serif] text-[clamp(2rem,4vw,4rem)] font-semibold leading-[1.16] tracking-[-0.032em] text-[#1F2937]">
                   Helpful does not mean chaotic.
                 </h2>
               </motion.div>
@@ -802,7 +745,7 @@ export default function LandingPage() {
                 whileInView="show"
                 viewport={{ once: true, margin: "-100px" }}
                 variants={stagger}
-                className="divide-y divide-black/10 border-y border-black/10"
+                className="divide-y divide-[#1F2937]/10 border-y border-[#1F2937]/10"
               >
                 {safety.map((point) => (
                   <motion.div
@@ -810,10 +753,11 @@ export default function LandingPage() {
                     variants={item}
                     className="grid gap-5 py-7 sm:grid-cols-[40px_1fr] sm:items-center"
                   >
-                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#15120f] text-sm font-semibold text-white">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#263143] text-sm font-semibold text-white">
                       ✓
                     </span>
-                    <p className="text-2xl font-semibold leading-snug tracking-[-0.035em] text-black sm:text-3xl">
+
+                    <p className="text-2xl font-semibold leading-snug tracking-[-0.035em] text-[#1F2937] sm:text-3xl">
                       {point}
                     </p>
                   </motion.div>
@@ -836,10 +780,11 @@ export default function LandingPage() {
               variants={fadeUp}
               className="mb-14 grid gap-8 lg:grid-cols-[0.7fr_1.3fr]"
             >
-              <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#ff6b35]">
+              <p className="text-[28px] font-semibold uppercase tracking-[0.28em] text-[#C28A45]">
                 Capstone team
               </p>
-              <h2 className="font-serif text-[clamp(2rem,4vw,4rem)] font-medium leading-[1.16] tracking-[-0.032em]">
+
+              <h2 className="font-['Parkinsans',sans-serif] text-[clamp(2rem,4vw,4rem)] font-semibold leading-[1.16] tracking-[-0.032em] text-[#1F2937]">
                 Built by a team focused on clearer community
                 response.
               </h2>
@@ -856,15 +801,31 @@ export default function LandingPage() {
                 <motion.article
                   key={developer.name}
                   variants={item}
-                  className="rounded-[28px] border border-black/8 bg-[#fffaf2] p-5 transition-all hover:-translate-y-1 hover:bg-white hover:shadow-[0_20px_60px_rgba(0,0,0,0.06)]"
+                  className="rounded-[28px] border border-[#1F2937]/8 bg-[#FFFFFF] p-5 transition-all hover:-translate-y-1 hover:bg-white hover:shadow-[0_20px_60px_rgba(31,41,55,0.06)]"
                 >
-                  <div className="mb-10 flex h-14 w-14 items-center justify-center rounded-full bg-[#15120f] font-serif text-lg text-white">
-                    {getInitials(developer.name)}
+                  <div className="relative mb-10 h-14 w-14">
+                    {developer.image && (
+                      <img
+                        src={developer.image}
+                        alt={`${developer.name}'s avatar`}
+                        className="absolute inset-0 z-10 h-full w-full rounded-full object-cover"
+                        onError={(event) => {
+                          event.currentTarget.style.display =
+                            "none";
+                        }}
+                      />
+                    )}
+
+                    <div className="absolute inset-0 flex items-center justify-center rounded-full bg-[#263143] text-lg text-white">
+                      {getInitials(developer.name)}
+                    </div>
                   </div>
-                  <h3 className="text-lg font-semibold leading-snug tracking-[-0.035em] text-black">
+
+                  <h3 className="font-['Parkinsans',sans-serif] text-lg font-semibold leading-snug tracking-[-0.035em] text-[#1F2937]">
                     {developer.name}
                   </h3>
-                  <p className="mt-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-black/35">
+
+                  <p className="mt-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#1F2937]/35">
                     {developer.role}
                   </p>
                 </motion.article>
@@ -872,73 +833,47 @@ export default function LandingPage() {
             </motion.div>
           </div>
         </section>
-
-        {/* FINAL CTA */}
-        <section className="px-3 pb-6 sm:px-4 md:px-6">
-          <div className="mx-auto max-w-[1500px] overflow-hidden rounded-[28px] bg-[#ff6b35] sm:rounded-[42px]">
-            <motion.div
-              initial="hidden"
-              whileInView="show"
-              viewport={{ once: true }}
-              variants={fadeUp}
-              className="relative px-6 py-20 text-center text-white sm:px-10 lg:px-16 lg:py-24"
-            >
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.36),transparent_44%)]" />
-              <div className="relative z-10 mx-auto max-w-5xl">
-                <img
-                  src={logoSrc}
-                  alt="Pawnect logo"
-                  className="mx-auto mb-10 h-10 w-auto object-contain brightness-0 invert"
-                />
-                <h2 className="font-serif text-[clamp(2.4rem,5.4vw,5rem)] font-medium leading-[1.12] tracking-[-0.04em]">
-                  Start with one clear report.
-                </h2>
-                <p className="mx-auto mt-9 max-w-2xl text-base leading-relaxed text-white/80 sm:text-lg">
-                  Create a lost or found case, search nearby
-                  reports, and help the right update reach the
-                  right person.
-                </p>
-                <button
-                  type="button"
-                  onClick={goToLogin}
-                  className="mt-10 rounded-full bg-white px-8 py-4 text-sm font-semibold text-black transition-all hover:-translate-y-1 hover:bg-[#fff7ed]"
-                >
-                  Get started
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        </section>
       </main>
 
-      <footer className="px-4 py-9 sm:px-6">
-        <div className="mx-auto flex max-w-[1500px] flex-col gap-6 border-t border-black/10 pt-8 md:flex-row md:items-center md:justify-between">
-          <div className="flex items-center gap-4">
-            <img
-              src={logoSrc}
-              alt="Pawnect logo"
-              className="h-6 w-auto object-contain opacity-70 grayscale"
-            />
-            <p className="text-xs font-medium text-black/42">
-              A location-based pet recovery platform.
+      <footer className="bg-white">
+        <div className="w-full overflow-hidden bg-[#1F2937]">
+          <img
+            src="https://raw.githubusercontent.com/JudeGaringalo/Pawnect/refs/heads/main/public/images/footer.png"
+            alt="Pawnect footer"
+            className="block h-auto w-full"
+          />
+        </div>
+
+        <div className="bg-white px-4 py-6 sm:px-6">
+          <div className="mx-auto flex max-w-[1500px] flex-col gap-6 md:flex-row md:items-center md:justify-between">
+            <div className="flex items-center gap-4">
+              <img
+                src={logoSrc}
+                alt="Pawnect logo"
+                className="h-6 w-auto object-contain opacity-70 grayscale"
+              />
+
+              <p className="text-xs font-medium text-[#1F2937]/70">
+                A location-based pet recovery platform.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-7 text-xs font-medium text-[#1F2937]/70">
+              {navItems.map((nav) => (
+                <a
+                  key={nav.label}
+                  href={nav.href}
+                  className="transition-colors hover:text-[#1F2937]"
+                >
+                  {nav.label}
+                </a>
+              ))}
+            </div>
+
+            <p className="text-xs font-medium text-[#1F2937]/70">
+              © 2026 Pawnect. Capstone prototype.
             </p>
           </div>
-
-          <div className="flex flex-wrap gap-5 text-xs font-medium text-black/42">
-            {navItems.map((nav) => (
-              <a
-                key={nav.label}
-                href={nav.href}
-                className="transition-colors hover:text-black"
-              >
-                {nav.label}
-              </a>
-            ))}
-          </div>
-
-          <p className="text-xs font-medium text-black/32">
-            © 2026 Pawnect. Capstone prototype.
-          </p>
         </div>
       </footer>
     </div>

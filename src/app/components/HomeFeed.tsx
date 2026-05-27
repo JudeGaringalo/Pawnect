@@ -18,6 +18,11 @@ import {
   Clock,
 } from 'lucide-react';
 
+const logoSrc =
+  "https://raw.githubusercontent.com/JudeGaringalo/Pawnect/refs/heads/main/public/images/logo.png";
+const favicon =
+  "https://raw.githubusercontent.com/JudeGaringalo/Pawnect/refs/heads/main/public/images/favicon.png";
+
 export default function HomeFeed() {
   const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState('all');
@@ -182,19 +187,35 @@ export default function HomeFeed() {
     <div className="min-h-screen bg-slate-50">
       {/* Top Navigation */}
       <nav className="sticky top-0 z-50 bg-white border-b border-slate-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center">
-                <MapPin className="w-6 h-6 text-white" />
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          <div className="flex items-center justify-between gap-4">
+             <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-[0_2px_10px_rgba(0,0,0,0.08)]">
+                <img
+                  src={favicon}
+                  alt="Pawnect logo"
+                  className="h-6 w-auto object-contain" 
+                />
               </div>
-              <span className="font-bold text-slate-900 text-xl">Pawnect</span>
+              <span className="text-2xl font-bold text-slate-900">Pawnect</span>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex-1 max-w-2xl mx-8">
+              <div className="relative w-full">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Search by pet name, breed, color, or location"
+                  onClick={() => navigate('/search')}
+                  className="w-full pl-12 pr-4 py-3 bg-slate-100 border border-slate-200 rounded-full focus:outline-none focus:border-[#1F2937] focus:bg-slate-100 transition-all"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 shrink-0">
               <button
                 onClick={() => navigate('/create-report')}
-                className="px-4 py-2 bg-gradient-to-r from-teal-600 to-emerald-600 text-white rounded-full hover:shadow-lg transition-all flex items-center gap-2"
+                className="px-4 py-2 bg-[#263143] text-white rounded-full hover:shadow-lg transition-all flex items-center gap-2"
               >
                 <Plus className="w-5 h-5" />
                 <span className="hidden sm:inline">Report Pet</span>
@@ -210,19 +231,7 @@ export default function HomeFeed() {
                 <User className="w-6 h-6 text-slate-600" />
               </button>
             </div>
-          </div>
-
-          {/* Search Bar */}
-          <div className="mt-4">
-            <div className="relative max-w-2xl">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Search by pet name, breed, color, or location"
-                onClick={() => navigate('/search')}
-                className="w-full pl-12 pr-4 py-3 bg-slate-100 border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-white transition-all"
-              />
-            </div>
+            
           </div>
         </div>
       </nav>
@@ -232,7 +241,7 @@ export default function HomeFeed() {
           {/* Main Feed */}
           <div className="lg:col-span-8">
             {/* Filters */}
-            <div className="mb-6 flex items-center gap-3 overflow-x-auto pb-2">
+            <div className="mb-6 flex items-center gap-3 overflow-x-auto py-1 px-1">
               {filters.map((filter) => (
                 <motion.button
                   key={filter.id}
@@ -241,8 +250,8 @@ export default function HomeFeed() {
                   onClick={() => setActiveFilter(filter.id)}
                   className={`px-4 py-2 rounded-full whitespace-nowrap font-medium transition-all ${
                     activeFilter === filter.id
-                      ? 'bg-teal-600 text-white shadow-md'
-                      : 'bg-white text-slate-600 border border-slate-200 hover:border-teal-500'
+                      ? 'bg-[#263143] text-white shadow-md'
+                      : 'bg-white text-slate-600 border border-slate-200 hover:border-[#263143]'
                   }`}
                 >
                   {filter.label}
@@ -263,7 +272,7 @@ export default function HomeFeed() {
                   {/* Post Header */}
                   <div className="p-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center text-white font-semibold">
+                      <div className="w-10 h-10 rounded-full bg-[#C28A45] flex items-center justify-center text-white font-semibold">
                         {post.petName[0]}
                       </div>
                       <div>
@@ -283,7 +292,7 @@ export default function HomeFeed() {
                             </span>
                           )}
                         </div>
-                        <div className="text-sm text-slate-500">
+                        <div className="text-sm text-slate-500 pt-1">
                           {post.date} • {post.time}
                         </div>
                       </div>
@@ -343,7 +352,7 @@ export default function HomeFeed() {
                         </motion.button>
                         <button
                           onClick={() => navigate(`/post/${post.id}`)}
-                          className="flex items-center gap-2 text-slate-600 hover:text-teal-600 transition-colors"
+                          className="flex items-center gap-2 text-slate-600 hover:text-black transition-colors"
                         >
                           <MessageCircle className="w-5 h-5" />
                           <span className="text-sm font-medium">{post.comments}</span>
@@ -366,7 +375,7 @@ export default function HomeFeed() {
                         </motion.button>
                         <button
                           onClick={() => navigate('/map')}
-                          className="px-4 py-2 bg-teal-50 text-teal-700 rounded-full hover:bg-teal-100 transition-colors text-sm font-medium"
+                          className="px-4 py-2 bg-[#D8E2F0] text-[#1F2937] rounded-full hover:bg-[#1F2937] transition-colors hover:text-[#D8E2F0] text-sm font-medium"
                         >
                           View on Map
                         </button>
@@ -386,23 +395,23 @@ export default function HomeFeed() {
               <div className="space-y-2">
                 <button
                   onClick={() => navigate('/map')}
-                  className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors text-left"
+                  className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-100 transition-colors text-left"
                 >
-                  <Map className="w-5 h-5 text-teal-600" />
+                  <Map className="w-5 h-5 text-[#263143]" />
                   <span className="text-sm font-medium text-slate-700">View Map</span>
                 </button>
                 <button
                   onClick={() => navigate('/search')}
-                  className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors text-left"
+                  className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-100 transition-colors text-left"
                 >
-                  <Search className="w-5 h-5 text-teal-600" />
+                  <Search className="w-5 h-5 text-[#263143]" />
                   <span className="text-sm font-medium text-slate-700">Advanced Search</span>
                 </button>
                 <button
                   onClick={() => navigate('/reunited')}
-                  className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors text-left"
+                  className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-100 transition-colors text-left"
                 >
-                  <CheckCircle className="w-5 h-5 text-emerald-600" />
+                  <CheckCircle className="w-5 h-5 text-[#263143]" />
                   <span className="text-sm font-medium text-slate-700">Success Stories</span>
                 </button>
               </div>
@@ -414,13 +423,13 @@ export default function HomeFeed() {
               <div className="space-y-3">
                 {recentActivity.map((activity, index) => (
                   <div key={index} className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-full bg-[#D8E2F0] flex items-center justify-center">
                       {activity.status === 'reunited' ? (
-                        <CheckCircle className="w-4 h-4 text-emerald-600" />
+                        <CheckCircle className="w-4 h-4 text-[#0F172B]" />
                       ) : activity.status === 'new' ? (
-                        <AlertCircle className="w-4 h-4 text-blue-600" />
+                        <AlertCircle className="w-4 h-4 text-[#0F172B]" />
                       ) : (
-                        <MessageCircle className="w-4 h-4 text-teal-600" />
+                        <MessageCircle className="w-4 h-4 text-[#0F172B]" />
                       )}
                     </div>
                     <div className="flex-1">
@@ -430,7 +439,7 @@ export default function HomeFeed() {
                           ? 'was reunited'
                           : activity.status === 'new'
                           ? 'reported'
-                          : 'has new comment'}
+                          : 'has a new comment'}
                       </p>
                       <p className="text-xs text-slate-500">{activity.time}</p>
                     </div>
@@ -440,7 +449,7 @@ export default function HomeFeed() {
             </div>
 
             {/* Safety Reminder */}
-            <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl border border-amber-200 p-6">
+            <div className="bg-yellow-200 rounded-2xl border border-amber-500 p-6">
               <h3 className="font-semibold text-slate-900 mb-2">Safety Reminder</h3>
               <p className="text-sm text-slate-700">
                 Always meet in public places when arranging pet returns. Verify ownership before releasing a pet.
