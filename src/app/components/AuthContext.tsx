@@ -7,8 +7,6 @@ import {
 } from "react";
 import {
   createClient,
-  Session,
-  User,
   SupabaseClient,
 } from "@supabase/supabase-js";
 import { projectId, publicAnonKey } from "/utils/supabase/info";
@@ -22,6 +20,7 @@ export const supabase: SupabaseClient = createClient(
 
 export interface Profile {
   id: string;
+  username?: string | null;
   full_name: string | null;
   email: string | null;
   avatar_url: string | null;
@@ -31,17 +30,23 @@ export interface Profile {
   created_at: string;
 }
 
+interface MockUser {
+  id: string;
+  username: string;
+  email: string | null;
+  user_metadata: {
+    full_name?: string | null;
+    avatar_url?: string | null;
+  };
+}
+
 interface AuthContextType {
-  user: User | null;
-  session: Session | null;
+  user: MockUser | null;
+  session: null;
   profile: Profile | null;
   loading: boolean;
-  signInWithEmail: (
-    email: string,
-    password: string,
-  ) => Promise<{ error?: string }>;
-  signUpWithEmail: (
-    email: string,
+  signInWithUsername: (
+    username: string,
     password: string,
   ) => Promise<{ error?: string }>;
   signOut: () => Promise<void>;
@@ -55,8 +60,7 @@ const AuthContext = createContext<AuthContextType>({
   session: null,
   profile: null,
   loading: true,
-  signInWithEmail: async () => ({}),
-  signUpWithEmail: async () => ({}),
+  signInWithUsername: async () => ({}),
   signOut: async () => {},
   getAuthHeader: () => ({
     Authorization: `Bearer ${publicAnonKey}`,
@@ -70,101 +74,124 @@ export function AuthProvider({
 }: {
   children: ReactNode;
 }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<MockUser | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [mockToken, setMockToken] = useState<string | null>(
+    null,
+  );
   const [loading, setLoading] = useState(true);
 
-  const fetchProfile = async (accessToken: string) => {
-    try {
-      const res = await fetch(`${SERVER_URL}/profile`, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
+  const setSessionFromProfile = (
+    token: string,
+    profileData: Profile,
+  ) => {
+    setMockToken(token);
+    setProfile(profileData);
 
-      if (res.ok) {
-        const { data } = await res.json();
-        setProfile(data ?? null);
-      } else {
-        setProfile(null);
+    setUser({
+      id: profileData.id,
+      username:
+        profileData.username || profileData.full_name || "user",
+      email: profileData.email,
+      user_metadata: {
+        full_name:
+          profileData.full_name ||
+          profileData.username ||
+          "Pawnect User",
+        avatar_url: profileData.avatar_url,
+      },
+    });
+  };
+
+  const loadStoredSession = () => {
+    try {
+      const storedToken = localStorage.getItem(
+        "pawnect_mock_token",
+      );
+      const storedProfile = localStorage.getItem(
+        "pawnect_mock_profile",
+      );
+
+      if (storedToken && storedProfile) {
+        const parsedProfile = JSON.parse(
+          storedProfile,
+        ) as Profile;
+        setSessionFromProfile(storedToken, parsedProfile);
       }
     } catch (err) {
-      console.log("Error fetching profile:", err);
-      setProfile(null);
+      console.log("Failed to load mock session:", err);
+      localStorage.removeItem("pawnect_mock_token");
+      localStorage.removeItem("pawnect_mock_profile");
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-
-      if (session?.access_token) {
-        fetchProfile(session.access_token);
-      }
-
-      setLoading(false);
-    });
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-
-      if (session?.access_token) {
-        fetchProfile(session.access_token);
-      } else {
-        setProfile(null);
-      }
-
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    loadStoredSession();
   }, []);
 
-  const signInWithEmail = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+  const signInWithUsername = async (
+    username: string,
+    password: string,
+  ) => {
+    try {
+      const res = await fetch(`${SERVER_URL}/mock-login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${publicAnonKey}`,
+        },
+        body: JSON.stringify({
+          username,
+          password,
+        }),
+      });
 
-    if (error) {
-      return { error: error.message };
+      const json = await res.json();
+
+      if (!res.ok) {
+        return {
+          error: json.error || "Login failed",
+        };
+      }
+
+      const token = json.data.token;
+      const profileData = json.data.profile as Profile;
+
+      localStorage.setItem("pawnect_mock_token", token);
+      localStorage.setItem(
+        "pawnect_mock_profile",
+        JSON.stringify(profileData),
+      );
+
+      setSessionFromProfile(token, profileData);
+
+      return {};
+    } catch (err: any) {
+      return {
+        error: err.message || "Login failed",
+      };
     }
-
-    return {};
-  };
-
-  const signUpWithEmail = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
-
-    if (error) {
-      return { error: error.message };
-    }
-
-    return {};
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    localStorage.removeItem("pawnect_mock_token");
+    localStorage.removeItem("pawnect_mock_profile");
+
+    setMockToken(null);
     setUser(null);
-    setSession(null);
     setProfile(null);
   };
 
   const getAuthHeader = (): Record<string, string> => {
-    const token = session?.access_token ?? publicAnonKey;
-    return { Authorization: `Bearer ${token}` };
+    return {
+      Authorization: `Bearer ${mockToken || publicAnonKey}`,
+    };
   };
 
   const refreshProfile = async () => {
-    if (session?.access_token) {
-      await fetchProfile(session.access_token);
-    }
+    loadStoredSession();
   };
 
   const isAdmin =
@@ -174,11 +201,10 @@ export function AuthProvider({
     <AuthContext.Provider
       value={{
         user,
-        session,
+        session: null,
         profile,
         loading,
-        signInWithEmail,
-        signUpWithEmail,
+        signInWithUsername,
         signOut,
         getAuthHeader,
         refreshProfile,
