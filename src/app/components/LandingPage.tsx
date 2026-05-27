@@ -3,13 +3,13 @@ import { useNavigate } from "react-router";
 import { motion } from "motion/react";
 
 const logoSrc =
-  "blob:https://www.figma.com/137e4b3f-97bc-4267-947d-d33375f88388";
+  "https://raw.githubusercontent.com/JudeGaringalo/Pawnect/refs/heads/main/public/images/logo.png";
 
 const favicon =
-  "blob:https://www.figma.com/6f072b93-db10-4e04-8f30-108fe91508f1";
+  "https://raw.githubusercontent.com/JudeGaringalo/Pawnect/refs/heads/main/public/images/favicon.png";
 
 const heroImageSrc =
-  "blob:https://www.figma.com/d60b07fe-2f7e-4de8-9a1e-ee010f15c140";
+  "https://raw.githubusercontent.com/JudeGaringalo/Pawnect/refs/heads/main/public/images/header-image.png";
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -129,31 +129,31 @@ export default function LandingPage() {
       name: "Lester Jude Garingalo",
       role: "Full-Stack Developer",
       image:
-        "blob:https://www.figma.com/320286b3-5af2-4f0f-97d7-4f8a999cea60",
+        "https://raw.githubusercontent.com/JudeGaringalo/Pawnect/refs/heads/main/public/images/jude.jpg",
     },
     {
       name: "Andrea Sai Malicdem",
       role: "Documentation",
       image:
-        "blob:https://www.figma.com/6e2e89ab-952c-49ee-92fa-2b81df5d1190",
+        "https://raw.githubusercontent.com/JudeGaringalo/Pawnect/refs/heads/main/public/images/sai.jpg",
     },
     {
       name: "Cornelius James Lasala",
       role: "Documentation",
       image:
-        "blob:https://www.figma.com/b865d7c6-895f-48c0-87c2-c3f2c3c9379d",
+        "https://raw.githubusercontent.com/JudeGaringalo/Pawnect/refs/heads/main/public/images/bam.jpg",
     },
     {
       name: "Ruy Inigo Fajutagana",
       role: "Documentation",
       image:
-        "blob:https://www.figma.com/35eeea56-92d4-4361-af55-36335cb6d7e8",
+        "https://raw.githubusercontent.com/JudeGaringalo/Pawnect/refs/heads/main/public/images/ruy.jpg",
     },
     {
       name: "Carlvin Cabug-os",
       role: "Documentation",
       image:
-        "blob:https://www.figma.com/f5539f81-b1e5-4676-86cb-6a86abc93342",
+        "https://raw.githubusercontent.com/JudeGaringalo/Pawnect/refs/heads/main/public/images/Carlvin.jpg",
     },
   ];
 
@@ -659,7 +659,7 @@ export default function LandingPage() {
                 duration: 0.75,
                 ease: [0.16, 1, 0.3, 1],
               }}
-              className="rounded-[32px] bg-[#FFFFFF] p-3 shadow-[0_26px_90px_rgba(31,41,55,0.08)]"
+              className="rounded-[32px] bg-white p-3 shadow-[0_26px_90px_rgba(31,41,55,0.08)]"
             >
               <div className="overflow-hidden rounded-[26px] border border-[#1F2937]/8 bg-[#1E293B]">
                 <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
@@ -682,15 +682,73 @@ export default function LandingPage() {
                   </button>
                 </div>
 
-                <div className="relative h-[480px] bg-[linear-gradient(135deg,#334155,#111827)]">
-                  <div className="absolute inset-0 opacity-25 [background-image:linear-gradient(rgba(255,255,255,.12)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.12)_1px,transparent_1px)] [background-size:48px_48px]" />
+                <div className="relative h-[480px] overflow-hidden bg-[#DDE6DC]">
+                  {/* Static map image mockup using OpenStreetMap tiles */}
+                  <div className="absolute inset-0 grid grid-cols-2 grid-rows-2 opacity-95">
+                    <img
+                      src="https://tile.openstreetmap.org/13/6848/3759.png"
+                      alt=""
+                      className="h-full w-full object-cover"
+                    />
+                    <img
+                      src="https://tile.openstreetmap.org/13/6849/3759.png"
+                      alt=""
+                      className="h-full w-full object-cover"
+                    />
+                    <img
+                      src="https://tile.openstreetmap.org/13/6848/3760.png"
+                      alt=""
+                      className="h-full w-full object-cover"
+                    />
+                    <img
+                      src="https://tile.openstreetmap.org/13/6849/3760.png"
+                      alt=""
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
 
-                  <div className="absolute left-[21%] top-[32%] h-5 w-5 rounded-full bg-[#C28A45] ring-[18px] ring-[#C28A45]/20" />
-                  <div className="absolute left-[63%] top-[26%] h-4 w-4 rounded-full bg-white ring-[14px] ring-white/15" />
-                  <div className="absolute left-[54%] top-[66%] h-4 w-4 rounded-full bg-[#F0D7B0] ring-[14px] ring-[#F0D7B0]/18" />
+                  {/* Soft brand overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#263143]/10 via-transparent to-[#263143]/30" />
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_45%_42%,rgba(194,138,69,0.20),transparent_34%)]" />
 
-                  <div className="absolute bottom-5 left-5 right-5 rounded-[24px] border border-white/12 bg-black/48 p-5 backdrop-blur-xl">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#F0D7B0]">
+                  {/* Mock pins */}
+                  <div className="absolute left-[22%] top-[34%]">
+                    <div className="relative">
+                      <span className="absolute -inset-4 rounded-full bg-red-500/20" />
+                      <span className="relative flex h-9 w-9 items-center justify-center rounded-full border-[3px] border-white bg-red-500 shadow-[0_10px_30px_rgba(15,23,42,0.30)]">
+                        <span className="h-2.5 w-2.5 rounded-full bg-white" />
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="absolute left-[61%] top-[28%]">
+                    <div className="relative">
+                      <span className="absolute -inset-4 rounded-full bg-blue-500/20" />
+                      <span className="relative flex h-9 w-9 items-center justify-center rounded-full border-[3px] border-white bg-blue-500 shadow-[0_10px_30px_rgba(15,23,42,0.30)]">
+                        <span className="h-2.5 w-2.5 rounded-full bg-white" />
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="absolute left-[52%] top-[64%]">
+                    <div className="relative">
+                      <span className="absolute -inset-4 rounded-full bg-emerald-500/20" />
+                      <span className="relative flex h-9 w-9 items-center justify-center rounded-full border-[3px] border-white bg-emerald-500 shadow-[0_10px_30px_rgba(15,23,42,0.30)]">
+                        <span className="h-2.5 w-2.5 rounded-full bg-white" />
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Floating search card */}
+                  <div className="absolute left-5 top-5 rounded-full border border-white/70 bg-white/92 px-4 py-3 shadow-[0_14px_40px_rgba(15,23,42,0.16)] backdrop-blur-xl">
+                    <p className="text-xs font-semibold text-[#1F2937]/70">
+                      Quezon City · 5km radius
+                    </p>
+                  </div>
+
+                  {/* Bottom stats */}
+                  <div className="absolute bottom-5 left-5 right-5 rounded-[24px] border border-white/60 bg-white/90 p-5 shadow-[0_16px_50px_rgba(15,23,42,0.18)] backdrop-blur-xl">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#C28A45]">
                       Search radius
                     </p>
 
@@ -701,17 +759,21 @@ export default function LandingPage() {
                         ["6", "recent sightings"],
                       ].map(([value, label]) => (
                         <div key={label}>
-                          <p className="text-4xl tracking-[-0.06em] text-white">
+                          <p className="text-4xl tracking-[-0.06em] text-[#1F2937]">
                             {value}
                           </p>
 
-                          <p className="mt-1 text-xs text-white/46">
+                          <p className="mt-1 text-xs text-[#1F2937]/50">
                             {label}
                           </p>
                         </div>
                       ))}
                     </div>
                   </div>
+
+                  <p className="absolute bottom-2 right-4 text-[9px] font-medium text-[#1F2937]/40">
+                    Static prototype map
+                  </p>
                 </div>
               </div>
             </motion.div>
@@ -838,7 +900,7 @@ export default function LandingPage() {
       <footer className="bg-white">
         <div className="w-full overflow-hidden bg-[#1F2937]">
           <img
-            src="blob:https://www.figma.com/17476e2d-8894-4eea-8e61-9270e74ee3b9"
+            src="https://raw.githubusercontent.com/JudeGaringalo/Pawnect/refs/heads/main/public/images/footer.png"
             alt="Pawnect footer"
             className="block h-auto w-full"
           />
