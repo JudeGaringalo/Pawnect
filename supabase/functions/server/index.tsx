@@ -333,12 +333,11 @@ app.post(`${PREFIX}/mock-login`, async (c: any) => {
       );
     }
 
-    const { data: createdProfile, error: createError } =
+    const { data: createdProfile, error: createProfileError } =
       await supabase
         .from("profiles")
         .insert({
           username,
-          mock_password: password,
           full_name: username,
           email: null,
           avatar_url: null,
@@ -348,10 +347,34 @@ app.post(`${PREFIX}/mock-login`, async (c: any) => {
         .select("*")
         .single();
 
-    if (createError) {
-      console.log("Mock profile create error:", createError);
-      return c.json({ error: createError.message }, 500);
+    if (createProfileError) {
+      console.log(
+        "Mock profile create error:",
+        createProfileError,
+      );
+      return c.json({ error: createProfileError.message }, 500);
     }
+
+    const { error: credentialError } = await supabase
+      .from("mock_credentials")
+      .insert({
+        profile_id: createdProfile.id,
+        username,
+        password_hash: null,
+      });
+
+    if (credentialError) {
+      console.log(
+        "Mock credential insert error:",
+        credentialError,
+      );
+      return c.json({ error: credentialError.message }, 500);
+    }
+
+    await supabase.rpc("set_mock_password_hash", {
+      target_username: username,
+      raw_password: password,
+    });
 
     await logActivity({
       user_id: createdProfile.id,
