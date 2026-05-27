@@ -300,35 +300,48 @@ registerPost("/mock-login", async (c: any) => {
     const username = String(body.username || "")
       .trim()
       .toLowerCase();
-    const password = String(body.password || "").trim();
 
-    if (!username || !password) {
-      return c.json(
-        { error: "Username and password are required" },
-        400,
-      );
+    if (!username) {
+      return c.json({ error: "Username is required" }, 400);
     }
 
-    const { data, error } = await supabase.rpc(
-      "mock_login_or_create",
-      {
-        input_username: username,
-        raw_password: password,
-      },
-    );
+    let profile = null;
 
-    if (error) {
-      console.log("mock_login_or_create error:", error);
-      return c.json({ error: error.message }, 500);
+    const { data: existingProfile, error: lookupError } =
+      await supabase
+        .from("profiles")
+        .select("*")
+        .eq("username", username)
+        .maybeSingle();
+
+    if (lookupError) {
+      console.log("Profile lookup error:", lookupError);
+      return c.json({ error: lookupError.message }, 500);
     }
 
-    const profile = Array.isArray(data) ? data[0] : data;
+    if (existingProfile) {
+      profile = existingProfile;
+    } else {
+      const { data: createdProfile, error: createError } =
+        await supabase
+          .from("profiles")
+          .insert({
+            username,
+            full_name: username,
+            email: null,
+            avatar_url: null,
+            role: "user",
+            location: "Philippines",
+          })
+          .select("*")
+          .single();
 
-    if (!profile?.id) {
-      return c.json(
-        { error: "Profile could not be created" },
-        500,
-      );
+      if (createError) {
+        console.log("Profile create error:", createError);
+        return c.json({ error: createError.message }, 500);
+      }
+
+      profile = createdProfile;
     }
 
     await logActivity({
