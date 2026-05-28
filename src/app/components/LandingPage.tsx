@@ -133,7 +133,7 @@ export default function LandingPage() {
     },
     {
       name: "Andrea Sai Malicdem",
-      role: "Documentation",
+      role: "Front-End Developer",
       image:
         "https://raw.githubusercontent.com/JudeGaringalo/Pawnect/refs/heads/main/public/images/sai.jpg",
     },
@@ -145,7 +145,7 @@ export default function LandingPage() {
     },
     {
       name: "Ruy Inigo Fajutagana",
-      role: "Documentation",
+      role: "UI/UX Designer",
       image:
         "https://raw.githubusercontent.com/JudeGaringalo/Pawnect/refs/heads/main/public/images/ruy.jpg",
     },
@@ -676,7 +676,7 @@ export default function LandingPage() {
                   <button
                     type="button"
                     onClick={goToLogin}
-                    className="rounded-full bg-white px-4 py-2 text-xs font-semibold text-[#1F2937]"
+                    className="rounded-full bg-white px-4 py-2 text-xs font-semibold text-[#1F2937] hover:bg-slate-100"
                   >
                     Open
                   </button>
@@ -887,7 +887,7 @@ export default function LandingPage() {
                     {developer.name}
                   </h3>
 
-                  <p className="mt-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#1F2937]/35">
+                  <p className="mt-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#1F2937]/50">
                     {developer.role}
                   </p>
                 </motion.article>
@@ -898,7 +898,7 @@ export default function LandingPage() {
       </main>
 
       <footer className="bg-white">
-        <div className="w-full overflow-hidden bg-[#1F2937]">
+        <div className="w-full overflow-hidden">
           <img
             src="https://raw.githubusercontent.com/JudeGaringalo/Pawnect/refs/heads/main/public/images/footer.png"
             alt="Pawnect footer"
@@ -933,7 +933,7 @@ export default function LandingPage() {
             </div>
 
             <p className="text-xs font-medium text-[#1F2937]/70">
-              © 2026 Pawnect. Capstone prototype.
+              © 2026 Pawnect. Capstone Prototype.
             </p>
           </div>
         </div>

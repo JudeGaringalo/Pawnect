@@ -170,7 +170,7 @@ export default function UserDashboard() {
                   </div>
                 )}
                 {profile?.is_admin && (
-                  <span className="mt-2 inline-block px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
+                  <span className="mt-2 inline-block px-3 py-1 bg-[#E6DDD3] text-[#A8783C] rounded-full text-xs font-medium">
                     Admin
                   </span>
                 )}
@@ -188,7 +188,7 @@ export default function UserDashboard() {
               {profile?.is_admin && (
                 <button
                   onClick={() => navigate('/admin')}
-                  className="px-6 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-all font-medium"
+                  className="px-6 py-3 bg-[#C28A45] text-white rounded-xl hover:bg-[#A8783C] hover:shadow-lg transition-all font-medium"
                 >
                   Admin Panel
                 </button>
@@ -245,7 +245,7 @@ export default function UserDashboard() {
                   <p className="text-slate-600 mb-4">No reports yet</p>
                   <button
                     onClick={() => navigate('/create-report')}
-                    className="px-6 py-3 bg-[#263143] text-white rounded-full font-medium"
+                    className="px-6 py-3 bg-[#263143] text-white hover:bg-[#1F2937] rounded-full font-medium"
                   >
                     Create your first report
                   </button>

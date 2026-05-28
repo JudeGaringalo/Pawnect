@@ -308,7 +308,7 @@ export default function AdminDashboard() {
               </button>
 
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#C28A45] to-[#CAAC88] flex items-center justify-center">
                   <Shield className="w-6 h-6 text-white" />
                 </div>
                 <div>
@@ -375,8 +375,8 @@ export default function AdminDashboard() {
               }
               className={`px-6 py-3 rounded-xl font-medium whitespace-nowrap transition-all ${
                 selectedTab === tab.id
-                  ? "bg-purple-600 text-white shadow-lg"
-                  : "bg-white text-slate-600 border border-slate-200 hover:border-purple-500"
+                  ? "bg-[#C28A45] text-white shadow-lg"
+                  : "bg-white text-slate-600 border border-slate-200 hover:border-[#C28A45]"
               }`}
             >
               {tab.label}

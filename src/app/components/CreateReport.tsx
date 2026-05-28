@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router";
 import { motion } from "motion/react";
 import {
@@ -35,9 +35,11 @@ export default function CreateReport() {
   const [color, setColor] = useState("");
   const [size, setSize] = useState("Medium");
   const [gender, setGender] = useState("Unknown");
-  const [location, setLocation] = useState("");
-  const [lat, setLat] = useState("");
-  const [lng, setLng] = useState("");
+  const [location, setLocation] = useState('');
+  const [lat, setLat] = useState('');
+  const [lng, setLng] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null); 
   const [incidentDate, setIncidentDate] = useState("");
   const [incidentTime, setIncidentTime] = useState("");
   const [description, setDescription] = useState("");
@@ -56,6 +58,40 @@ export default function CreateReport() {
     }
     setPhotoFile(file);
     setPhotoPreview(URL.createObjectURL(file));
+  };
+
+  useEffect(() => {
+    if (location.trim().length < 3) return;
+
+    const fetchCoordinates = async () => {
+      setIsLoading(true);
+      try {
+        // limit=1 ensures we only ask the API for the top match
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}&limit=1&countrycodes=ph`
+        );
+        const data = await res.json();
+
+        // If the API found a match, auto-fill the coordinates 
+        if (data && data.length > 0) {
+          setLat(parseFloat(data[0].lat).toFixed(4));
+          setLng(parseFloat(data[0].lon).toFixed(4));
+        }
+      } catch (error) {
+        console.error("Error fetching location data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+  const timeoutId = setTimeout(fetchCoordinates, 1000);
+    return () => clearTimeout(timeoutId);
+  }, [location]);
+
+  const handleLocationSelect = (place) => {
+    setLocation(place.display_name); 
+    setLat(place.lat);               
+    setLng(place.lon);                         
   };
 
   const handleSubmit = async () => {
@@ -506,12 +542,15 @@ export default function CreateReport() {
                   <input
                     type="text"
                     value={location}
-                    onChange={(e) =>
-                      setLocation(e.target.value)
-                    }
+                    onChange={(e) => setLocation(e.target.value)}
                     placeholder="e.g., Quezon City, near Barangay Hall"
-                    className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#263143]"
+                    className="w-full pl-12 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#263143]"
                   />
+
+                  {isLoading && (
+                    <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 animate-spin" />
+                  )}
+
                 </div>
               </div>
 
@@ -519,29 +558,27 @@ export default function CreateReport() {
                 <label className="block text-sm font-medium text-slate-700 mb-2">
                   Exact Coordinates{" "}
                   <span className="text-slate-400 text-xs">
-                    (optional — enables map pin)
+                    (Enables map pin)
                   </span>
                 </label>
                 <div className="grid grid-cols-2 gap-3">
                   <input
-                    type="number"
+                    type="text"
                     value={lat}
                     onChange={(e) => setLat(e.target.value)}
                     placeholder="Latitude (e.g., 14.5995)"
-                    step="0.0001"
                     className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#263143] text-sm"
                   />
                   <input
-                    type="number"
+                    type="text"
                     value={lng}
                     onChange={(e) => setLng(e.target.value)}
                     placeholder="Longitude (e.g., 120.9842)"
-                    step="0.0001"
                     className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#263143] text-sm"
                   />
                 </div>
               </div>
-
+            
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-2">

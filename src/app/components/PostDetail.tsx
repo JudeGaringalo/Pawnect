@@ -406,7 +406,7 @@ export default function PostDetail() {
                       onChange={(e) => setComment(e.target.value)}
                       placeholder={user ? 'Share any information that might help...' : 'Sign in to comment'}
                       disabled={!user}
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none disabled:opacity-60"
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-700 resize-none disabled:opacity-60"
                       rows={3}
                     />
                     <button
